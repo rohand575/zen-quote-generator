@@ -19,6 +19,18 @@ export default {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        navy: {
+          DEFAULT: "hsl(var(--navy))",
+          foreground: "hsl(var(--navy-foreground))",
+        },
+        orange: {
+          DEFAULT: "hsl(var(--orange))",
+          foreground: "hsl(var(--orange-foreground))",
+        },
+        neutral: {
+          DEFAULT: "hsl(var(--neutral))",
+          light: "hsl(var(--neutral-light))",
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -57,6 +69,11 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        heading: ['Space Grotesk', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
       },
       borderRadius: {
         lg: "var(--radius)",
