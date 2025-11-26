@@ -14,13 +14,143 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      clients: {
+        Row: {
+          address: string | null
+          city: string | null
+          created_at: string
+          email: string
+          id: string
+          name: string
+          phone: string | null
+          state: string | null
+          tax_id: string | null
+          zip_code: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          phone?: string | null
+          state?: string | null
+          tax_id?: string | null
+          zip_code?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          state?: string | null
+          tax_id?: string | null
+          zip_code?: string | null
+        }
+        Relationships: []
+      }
+      items: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          unit: string
+          unit_price: number
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          unit?: string
+          unit_price: number
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          unit?: string
+          unit_price?: number
+        }
+        Relationships: []
+      }
+      quotations: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          line_items: Json
+          notes: string | null
+          project_description: string | null
+          project_title: string
+          quotation_number: string
+          status: string
+          subtotal: number
+          tax_amount: number
+          tax_rate: number
+          total: number
+          updated_at: string
+          valid_until: string | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          line_items?: Json
+          notes?: string | null
+          project_description?: string | null
+          project_title: string
+          quotation_number: string
+          status?: string
+          subtotal?: number
+          tax_amount?: number
+          tax_rate?: number
+          total?: number
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          line_items?: Json
+          notes?: string | null
+          project_description?: string | null
+          project_title?: string
+          quotation_number?: string
+          status?: string
+          subtotal?: number
+          tax_amount?: number
+          tax_rate?: number
+          total?: number
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotations_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_quotation_number: { Args: never; Returns: string }
     }
     Enums: {
       [_ in never]: never
