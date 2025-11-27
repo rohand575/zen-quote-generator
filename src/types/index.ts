@@ -8,3 +8,10 @@ export interface LineItem {
   amount: number;
   itemId?: string;
 }
+
+export interface QuotationLineItem {
+  item_id: string;
+  quantity: number;
+  unit_price: number;
+  total: number;
+}
