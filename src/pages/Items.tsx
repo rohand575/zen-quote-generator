@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Search, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,37 +8,94 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-
-interface Item {
-  id: string;
-  name: string;
-  description: string;
-  unit: string;
-  unitPrice: number;
-  category: string;
-}
+import { itemsApi } from '@/lib/api';
 
 const Items = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<any>(null);
+  const queryClient = useQueryClient();
   
-  // Mock data - will be replaced with real data from backend
-  const [items] = useState<Item[]>([
-    { id: '1', name: 'Industrial Motor 5HP', description: 'Heavy-duty 3-phase motor', unit: 'ea', unitPrice: 25000, category: 'Motors' },
-    { id: '2', name: 'Safety Helmet Type A', description: 'ISI certified safety helmet', unit: 'pcs', unitPrice: 450, category: 'Safety Equipment' },
-    { id: '3', name: 'Control Panel Installation', description: 'Complete panel setup and wiring', unit: 'hrs', unitPrice: 1200, category: 'Services' },
-    { id: '4', name: 'Circuit Breaker 50A', description: 'MCB with overload protection', unit: 'ea', unitPrice: 850, category: 'Electrical' },
-  ]);
+  const { data: items = [], isLoading } = useQuery({
+    queryKey: ['items'],
+    queryFn: itemsApi.getAll,
+  });
 
-  const filteredItems = items.filter(item => 
+  const createMutation = useMutation({
+    mutationFn: itemsApi.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['items'] });
+      toast.success('Item added successfully');
+      setIsDialogOpen(false);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to add item');
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) => itemsApi.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['items'] });
+      toast.success('Item updated successfully');
+      setIsDialogOpen(false);
+      setEditingItem(null);
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to update item');
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: itemsApi.delete,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['items'] });
+      toast.success('Item deleted successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to delete item');
+    },
+  });
+
+  const filteredItems = items.filter((item: any) => 
     item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.category.toLowerCase().includes(searchTerm.toLowerCase())
+    (item.category && item.category.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  const handleAddItem = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    toast.success('Item added successfully');
-    setIsDialogOpen(false);
+    const formData = new FormData(e.currentTarget);
+    const data = {
+      name: formData.get('name') as string,
+      description: formData.get('description') as string,
+      unit: formData.get('unit') as string,
+      unit_price: parseFloat(formData.get('unit_price') as string),
+      category: formData.get('category') as string,
+    };
+
+    if (editingItem) {
+      updateMutation.mutate({ id: editingItem.id, data });
+    } else {
+      createMutation.mutate(data);
+    }
+  };
+
+  const handleEdit = (item: any) => {
+    setEditingItem(item);
+    setIsDialogOpen(true);
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm('Are you sure you want to delete this item?')) {
+      deleteMutation.mutate(id);
+    }
+  };
+
+  const handleDialogChange = (open: boolean) => {
+    setIsDialogOpen(open);
+    if (!open) {
+      setEditingItem(null);
+    }
   };
 
   const formatCurrency = (amount: number) => {
@@ -48,15 +106,22 @@ const Items = () => {
     }).format(amount);
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-heading font-bold text-foreground mb-2">Items Catalog</h1>
           <p className="text-muted-foreground">Manage your product and service catalog</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
           <DialogTrigger asChild>
             <Button className="bg-accent hover:bg-accent/90 text-accent-foreground gap-2">
               <Plus className="h-4 w-4" />
@@ -65,42 +130,42 @@ const Items = () => {
           </DialogTrigger>
           <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
-              <DialogTitle>Add New Item</DialogTitle>
+              <DialogTitle>{editingItem ? 'Edit Item' : 'Add New Item'}</DialogTitle>
               <DialogDescription>
-                Add a new product or service to your catalog.
+                {editingItem ? 'Update the item details below.' : 'Add a new product or service to your catalog.'}
               </DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleAddItem} className="space-y-4 pt-4">
+            <form onSubmit={handleSubmit} className="space-y-4 pt-4">
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="itemName">Item Name *</Label>
-                  <Input id="itemName" placeholder="Industrial Motor 5HP" required />
+                  <Label htmlFor="name">Item Name *</Label>
+                  <Input id="name" name="name" placeholder="Industrial Motor 5HP" defaultValue={editingItem?.name} required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="description">Description</Label>
-                  <Textarea id="description" placeholder="Heavy-duty 3-phase motor with overload protection" rows={3} />
+                  <Textarea id="description" name="description" placeholder="Heavy-duty 3-phase motor with overload protection" rows={3} defaultValue={editingItem?.description} />
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="unit">Unit *</Label>
-                    <Input id="unit" placeholder="ea" required />
+                    <Input id="unit" name="unit" placeholder="ea" defaultValue={editingItem?.unit || 'ea'} required />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="unitPrice">Unit Price *</Label>
-                    <Input id="unitPrice" type="number" step="0.01" placeholder="25000" required />
+                    <Label htmlFor="unit_price">Unit Price *</Label>
+                    <Input id="unit_price" name="unit_price" type="number" step="0.01" placeholder="25000" defaultValue={editingItem?.unit_price} required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="category">Category</Label>
-                    <Input id="category" placeholder="Motors" />
+                    <Input id="category" name="category" placeholder="Motors" defaultValue={editingItem?.category} />
                   </div>
                 </div>
               </div>
               <div className="flex justify-end gap-3 pt-4">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                <Button type="button" variant="outline" onClick={() => handleDialogChange(false)}>
                   Cancel
                 </Button>
                 <Button type="submit" className="bg-primary hover:bg-primary/90">
-                  Add Item
+                  {editingItem ? 'Update Item' : 'Add Item'}
                 </Button>
               </div>
             </form>
@@ -108,7 +173,6 @@ const Items = () => {
         </Dialog>
       </div>
 
-      {/* Search */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
@@ -119,7 +183,6 @@ const Items = () => {
         />
       </div>
 
-      {/* Items Table */}
       <Card className="border-border shadow-sm">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
@@ -135,19 +198,19 @@ const Items = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredItems.map((item, index) => (
+                {filteredItems.map((item: any, index: number) => (
                   <tr key={item.id} className={`border-b border-border hover:bg-muted/50 transition-colors ${index % 2 === 0 ? 'bg-background' : 'bg-muted/20'}`}>
                     <td className="py-4 px-6 font-medium">{item.name}</td>
                     <td className="py-4 px-6 text-sm text-muted-foreground max-w-xs truncate">{item.description}</td>
                     <td className="py-4 px-6 text-sm">{item.category}</td>
                     <td className="py-4 px-6 text-sm font-mono">{item.unit}</td>
-                    <td className="py-4 px-6 text-right font-mono font-medium">{formatCurrency(item.unitPrice)}</td>
+                    <td className="py-4 px-6 text-right font-mono font-medium">{formatCurrency(item.unit_price)}</td>
                     <td className="py-4 px-6 text-right">
                       <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(item)}>
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDelete(item.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>

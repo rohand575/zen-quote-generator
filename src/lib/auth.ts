@@ -1,32 +1,68 @@
-const AUTH_KEY = 'zen_auth';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface AuthUser {
+  id: string;
   email: string;
   name: string;
 }
 
 export const authService = {
-  login: (email: string): AuthUser => {
-    const user: AuthUser = { email, name: email.split('@')[0] };
-    localStorage.setItem(AUTH_KEY, JSON.stringify(user));
-    return user;
+  signUp: async (email: string, password: string): Promise<AuthUser> => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+    
+    if (error) throw error;
+    if (!data.user) throw new Error('User creation failed');
+    
+    return {
+      id: data.user.id,
+      email: data.user.email!,
+      name: data.user.email!.split('@')[0],
+    };
+  },
+
+  signIn: async (email: string, password: string): Promise<AuthUser> => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    
+    if (error) throw error;
+    if (!data.user) throw new Error('Sign in failed');
+    
+    return {
+      id: data.user.id,
+      email: data.user.email!,
+      name: data.user.email!.split('@')[0],
+    };
   },
   
-  logout: () => {
-    localStorage.removeItem(AUTH_KEY);
+  signOut: async (): Promise<void> => {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
   },
   
-  getUser: (): AuthUser | null => {
-    const stored = localStorage.getItem(AUTH_KEY);
-    if (!stored) return null;
-    try {
-      return JSON.parse(stored);
-    } catch {
-      return null;
-    }
+  getUser: async (): Promise<AuthUser | null> => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) return null;
+    
+    return {
+      id: user.id,
+      email: user.email!,
+      name: user.email!.split('@')[0],
+    };
   },
   
-  isAuthenticated: (): boolean => {
-    return !!authService.getUser();
+  isAuthenticated: async (): Promise<boolean> => {
+    const user = await authService.getUser();
+    return !!user;
+  },
+
+  // Synchronous version for ProtectedRoute
+  getCurrentSession: () => {
+    return supabase.auth.getSession();
   }
 };
