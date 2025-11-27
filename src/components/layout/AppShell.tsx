@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -10,7 +10,7 @@ import {
   LogOut
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { authService } from '@/lib/auth';
+import { authService, AuthUser } from '@/lib/auth';
 import { toast } from 'sonner';
 
 interface AppShellProps {
@@ -26,14 +26,22 @@ const navItems = [
 
 export const AppShell = ({ children }: AppShellProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const user = authService.getUser();
 
-  const handleLogout = () => {
-    authService.logout();
-    toast.success('Logged out successfully');
-    navigate('/login');
+  useEffect(() => {
+    authService.getUser().then(setUser);
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await authService.signOut();
+      toast.success('Logged out successfully');
+      navigate('/login');
+    } catch (error: any) {
+      toast.error('Logout failed');
+    }
   };
 
   return (
@@ -111,8 +119,8 @@ export const AppShell = ({ children }: AppShellProps) => {
           <div className="p-4 border-t border-sidebar-border">
             <div className="flex items-center justify-between mb-3">
               <div>
-                <p className="text-sm font-medium">{user?.name}</p>
-                <p className="text-xs text-sidebar-foreground/70">{user?.email}</p>
+                <p className="text-sm font-medium">{user?.name || 'Loading...'}</p>
+                <p className="text-xs text-sidebar-foreground/70">{user?.email || ''}</p>
               </div>
             </div>
             <Button
