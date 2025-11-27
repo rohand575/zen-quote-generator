@@ -1,38 +1,52 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Search, Eye, Edit, Trash2 } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-
-interface Quotation {
-  id: string;
-  quotationNumber: string;
-  client: string;
-  project: string;
-  date: string;
-  status: 'draft' | 'sent' | 'accepted' | 'rejected';
-  total: number;
-}
+import { quotationsApi } from '@/lib/api';
+import { toast } from '@/hooks/use-toast';
 
 const Quotations = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const queryClient = useQueryClient();
   
-  // Mock data - will be replaced with real data from backend
-  const [quotations] = useState<Quotation[]>([
-    { id: '1', quotationNumber: 'ZEN-2025-0024', client: 'ABC Industries', project: 'Industrial Automation System', date: '2025-11-25', status: 'sent', total: 245000 },
-    { id: '2', quotationNumber: 'ZEN-2025-0023', client: 'XYZ Manufacturing', project: 'Safety Equipment Installation', date: '2025-11-24', status: 'draft', total: 180000 },
-    { id: '3', quotationNumber: 'ZEN-2025-0022', client: 'Tech Solutions Ltd', project: 'Control Panel Upgrade', date: '2025-11-23', status: 'accepted', total: 320000 },
-    { id: '4', quotationNumber: 'ZEN-2025-0021', client: 'Prime Engineering', project: 'Motor Replacement Project', date: '2025-11-22', status: 'sent', total: 125000 },
-    { id: '5', quotationNumber: 'ZEN-2025-0020', client: 'Global Industries', project: 'Annual Maintenance Contract', date: '2025-11-20', status: 'rejected', total: 450000 },
-  ]);
+  const { data: quotations = [], isLoading } = useQuery({
+    queryKey: ['quotations'],
+    queryFn: quotationsApi.getAll,
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: quotationsApi.delete,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['quotations'] });
+      toast({
+        title: 'Success',
+        description: 'Quotation deleted successfully',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: error.message,
+      });
+    },
+  });
 
   const filteredQuotations = quotations.filter(quote => 
-    quote.quotationNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    quote.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    quote.project.toLowerCase().includes(searchTerm.toLowerCase())
+    quote.quotation_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    quote.client?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    quote.project_title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleDelete = (id: string) => {
+    if (confirm('Are you sure you want to delete this quotation?')) {
+      deleteMutation.mutate(id);
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { variant: "default" | "secondary" | "destructive" | "outline", className: string }> = {
@@ -56,6 +70,14 @@ const Quotations = () => {
       maximumFractionDigits: 0,
     }).format(amount);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -105,13 +127,13 @@ const Quotations = () => {
                   <tr key={quote.id} className={`border-b border-border hover:bg-muted/50 transition-colors ${index % 2 === 0 ? 'bg-background' : 'bg-muted/20'}`}>
                     <td className="py-4 px-6">
                       <Link to={`/quotations/${quote.id}/print`} className="text-primary hover:underline font-mono text-sm font-medium">
-                        {quote.quotationNumber}
+                        {quote.quotation_number}
                       </Link>
                     </td>
-                    <td className="py-4 px-6 font-medium">{quote.client}</td>
-                    <td className="py-4 px-6 text-sm text-muted-foreground">{quote.project}</td>
+                    <td className="py-4 px-6 font-medium">{quote.client?.name}</td>
+                    <td className="py-4 px-6 text-sm text-muted-foreground">{quote.project_title}</td>
                     <td className="py-4 px-6 text-sm text-muted-foreground">
-                      {new Date(quote.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      {new Date(quote.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </td>
                     <td className="py-4 px-6">{getStatusBadge(quote.status)}</td>
                     <td className="py-4 px-6 text-right font-mono font-medium">{formatCurrency(quote.total)}</td>
@@ -127,7 +149,12 @@ const Quotations = () => {
                             <Edit className="h-4 w-4" />
                           </Link>
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-8 w-8 text-destructive hover:text-destructive"
+                          onClick={() => handleDelete(quote.id)}
+                        >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>

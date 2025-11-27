@@ -10,6 +10,8 @@ import Dashboard from "./pages/Dashboard";
 import Clients from "./pages/Clients";
 import Items from "./pages/Items";
 import Quotations from "./pages/Quotations";
+import CreateQuotation from "./pages/CreateQuotation";
+import QuotationPrint from "./pages/QuotationPrint";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,6 +49,27 @@ const App = () => (
             <ProtectedRoute>
               <AppShell>
                 <Quotations />
+              </AppShell>
+            </ProtectedRoute>
+          } />
+          <Route path="/quotations/create" element={
+            <ProtectedRoute>
+              <AppShell>
+                <CreateQuotation />
+              </AppShell>
+            </ProtectedRoute>
+          } />
+          <Route path="/quotations/:id/edit" element={
+            <ProtectedRoute>
+              <AppShell>
+                <CreateQuotation />
+              </AppShell>
+            </ProtectedRoute>
+          } />
+          <Route path="/quotations/:id/print" element={
+            <ProtectedRoute>
+              <AppShell>
+                <QuotationPrint />
               </AppShell>
             </ProtectedRoute>
           } />
