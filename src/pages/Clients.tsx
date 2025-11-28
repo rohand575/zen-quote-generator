@@ -113,13 +113,13 @@ const Clients = () => {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-heading font-bold text-foreground mb-2">Clients</h1>
-          <p className="text-muted-foreground">Manage your client database</p>
+          <h1 className="text-4xl font-heading font-bold text-foreground mb-2 tracking-tight">Clients</h1>
+          <p className="text-muted-foreground text-lg">Manage your client database</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
           <DialogTrigger asChild>
-            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground gap-2">
-              <Plus className="h-4 w-4" />
+            <Button className="premium-gradient-accent text-accent-foreground gap-2 h-11 px-6 font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
+              <Plus className="h-5 w-5" />
               Add Client
             </Button>
           </DialogTrigger>
@@ -190,7 +190,7 @@ const Clients = () => {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredClients.map((client: any) => (
-          <Card key={client.id} className="border-border shadow-sm hover:shadow-md transition-shadow">
+          <Card key={client.id} className="premium-card group cursor-pointer hover:scale-105 transition-all duration-300">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div>

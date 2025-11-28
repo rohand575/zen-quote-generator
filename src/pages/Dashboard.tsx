@@ -107,12 +107,12 @@ const Dashboard = () => {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-heading font-bold text-foreground mb-2">Dashboard</h1>
-          <p className="text-muted-foreground">Welcome back! Here's an overview of your quotations.</p>
+          <h1 className="text-4xl font-heading font-bold text-foreground mb-2 tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground text-lg">Welcome back! Here's an overview of your quotations.</p>
         </div>
         <Link to="/quotations/create">
-          <Button className="bg-accent hover:bg-accent/90 text-accent-foreground gap-2">
-            <Plus className="h-4 w-4" />
+          <Button className="premium-gradient-accent text-accent-foreground gap-2 h-11 px-6 font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
+            <Plus className="h-5 w-5" />
             New Quotation
           </Button>
         </Link>
@@ -120,19 +120,26 @@ const Dashboard = () => {
 
       {/* Stats Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => {
+        {stats.map((stat, index) => {
           const Icon = stat.icon;
           return (
-            <Card key={stat.label} className="border-border shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+            <Card 
+              key={stat.label} 
+              className="premium-card group cursor-pointer hover:scale-105 transition-all duration-300"
+              style={{ animationDelay: `${index * 0.1}s` }}
+            >
+              <CardHeader className="flex flex-row items-center justify-between pb-3">
+                <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                   {stat.label}
                 </CardTitle>
-                <Icon className="h-5 w-5 text-primary" />
+                <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                  <Icon className="h-5 w-5 text-primary" />
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-heading font-bold text-foreground">{stat.value}</div>
-                <p className="text-xs text-green-600 mt-1">
+                <div className="text-4xl font-heading font-bold text-foreground mb-2">{stat.value}</div>
+                <p className="text-sm text-green-600 font-medium flex items-center gap-1">
+                  <TrendingUp className="h-3 w-3" />
                   {stat.change} from last month
                 </p>
               </CardContent>
@@ -142,16 +149,16 @@ const Dashboard = () => {
       </div>
 
       {/* Recent Quotations */}
-      <Card className="border-border shadow-sm">
-        <CardHeader>
+      <Card className="premium-card animate-slide-up">
+        <CardHeader className="border-b border-border pb-6">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-xl font-heading">Recent Quotations</CardTitle>
+            <CardTitle className="text-2xl font-heading">Recent Quotations</CardTitle>
             <Link to="/quotations">
-              <Button variant="outline" size="sm">View All</Button>
+              <Button variant="outline" size="sm" className="hover:bg-primary hover:text-primary-foreground transition-all">View All</Button>
             </Link>
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           {recentQuotations.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -172,19 +179,19 @@ const Dashboard = () => {
                 </thead>
                 <tbody>
                   {recentQuotations.map((quote) => (
-                    <tr key={quote.id} className="border-b border-border hover:bg-muted/50 transition-colors">
-                      <td className="py-4 px-4">
-                        <Link to={`/quotations/${quote.id}/print`} className="text-primary hover:underline font-mono text-sm">
+                    <tr key={quote.id} className="border-b border-border hover:bg-muted/30 transition-all duration-200 group">
+                      <td className="py-5 px-4">
+                        <Link to={`/quotations/${quote.id}/print`} className="text-primary hover:text-accent font-mono text-sm font-semibold transition-colors">
                           {quote.quotation_number}
                         </Link>
                       </td>
-                      <td className="py-4 px-4 text-sm">{getClientName(quote.client_id)}</td>
-                      <td className="py-4 px-4 text-sm">{quote.project_title}</td>
-                      <td className="py-4 px-4 text-sm text-muted-foreground">
+                      <td className="py-5 px-4 text-sm font-medium">{getClientName(quote.client_id)}</td>
+                      <td className="py-5 px-4 text-sm group-hover:text-foreground transition-colors">{quote.project_title}</td>
+                      <td className="py-5 px-4 text-sm text-muted-foreground">
                         {new Date(quote.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </td>
-                      <td className="py-4 px-4">{getStatusBadge(quote.status)}</td>
-                      <td className="py-4 px-4 text-right font-mono font-medium">{formatCurrency(Number(quote.total))}</td>
+                      <td className="py-5 px-4">{getStatusBadge(quote.status)}</td>
+                      <td className="py-5 px-4 text-right font-mono font-semibold text-base">{formatCurrency(Number(quote.total))}</td>
                     </tr>
                   ))}
                 </tbody>
