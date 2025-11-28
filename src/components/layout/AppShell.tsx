@@ -45,14 +45,14 @@ export const AppShell = ({ children }: AppShellProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-light">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-light via-background to-neutral-light">
       {/* Mobile Header */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-primary border-b border-primary/20 flex items-center justify-between px-4 z-50">
+      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 premium-gradient-bg border-b border-primary/20 flex items-center justify-between px-4 z-50 shadow-lg">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">Z</span>
+          <div className="w-9 h-9 premium-gradient-accent rounded-xl flex items-center justify-center shadow-md">
+            <span className="text-white font-bold text-base">Z</span>
           </div>
-          <span className="text-primary-foreground font-heading font-bold text-lg">Zen Engineering</span>
+          <span className="text-primary-foreground font-heading font-bold text-lg tracking-tight">Zen Engineering</span>
         </div>
         <Button
           variant="ghost"
@@ -67,7 +67,7 @@ export const AppShell = ({ children }: AppShellProps) => {
       {/* Sidebar */}
       <aside
         className={`
-          fixed top-0 left-0 h-full w-64 bg-sidebar text-sidebar-foreground 
+          fixed top-0 left-0 h-full w-64 premium-gradient-bg text-sidebar-foreground shadow-2xl
           transform transition-transform duration-300 ease-in-out z-40
           lg:translate-x-0
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
@@ -75,19 +75,19 @@ export const AppShell = ({ children }: AppShellProps) => {
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="h-16 flex items-center gap-3 px-6 border-b border-sidebar-border">
-            <div className="w-10 h-10 bg-accent rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold">Z</span>
+          <div className="h-16 flex items-center gap-3 px-6 border-b border-sidebar-border/50">
+            <div className="w-11 h-11 premium-gradient-accent rounded-xl flex items-center justify-center shadow-lg">
+              <span className="text-white font-bold text-lg">Z</span>
             </div>
             <div>
-              <h1 className="font-heading font-bold text-lg">Zen Engineering</h1>
-              <p className="text-xs text-sidebar-foreground/70">Quotation Manager</p>
+              <h1 className="font-heading font-bold text-lg tracking-tight">Zen Engineering</h1>
+              <p className="text-xs text-sidebar-foreground/80">Quotation Manager</p>
             </div>
           </div>
 
           {/* Navigation */}
           <nav className="flex-1 py-6 px-3">
-            <ul className="space-y-1">
+            <ul className="space-y-2">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.path;
@@ -98,15 +98,15 @@ export const AppShell = ({ children }: AppShellProps) => {
                       to={item.path}
                       onClick={() => setSidebarOpen(false)}
                       className={`
-                        flex items-center gap-3 px-4 py-3 rounded-lg 
-                        transition-all duration-200
+                        flex items-center gap-3 px-4 py-3.5 rounded-xl 
+                        transition-all duration-300 group
                         ${isActive 
-                          ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium' 
-                          : 'text-sidebar-foreground/80 hover:bg-sidebar-accent/50'
+                          ? 'bg-sidebar-accent text-sidebar-accent-foreground font-semibold shadow-lg scale-105' 
+                          : 'text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground hover:scale-105'
                         }
                       `}
                     >
-                      <Icon className="h-5 w-5" />
+                      <Icon className={`h-5 w-5 ${isActive ? '' : 'group-hover:scale-110'} transition-transform`} />
                       <span>{item.label}</span>
                     </Link>
                   </li>
@@ -116,18 +116,18 @@ export const AppShell = ({ children }: AppShellProps) => {
           </nav>
 
           {/* User Section */}
-          <div className="p-4 border-t border-sidebar-border">
-            <div className="flex items-center justify-between mb-3">
+          <div className="p-4 border-t border-sidebar-border/50">
+            <div className="flex items-center justify-between mb-4 px-2">
               <div>
-                <p className="text-sm font-medium">{user?.name || 'Loading...'}</p>
-                <p className="text-xs text-sidebar-foreground/70">{user?.email || ''}</p>
+                <p className="text-sm font-semibold">{user?.name || 'Loading...'}</p>
+                <p className="text-xs text-sidebar-foreground/80">{user?.email || ''}</p>
               </div>
             </div>
             <Button
               variant="outline"
               size="sm"
               onClick={handleLogout}
-              className="w-full justify-start gap-2 border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent"
+              className="w-full justify-start gap-2 border-sidebar-border/50 text-sidebar-foreground hover:bg-sidebar-accent hover:scale-105 transition-all duration-300 shadow-md"
             >
               <LogOut className="h-4 w-4" />
               Logout

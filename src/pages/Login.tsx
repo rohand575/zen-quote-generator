@@ -49,29 +49,35 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary via-primary to-primary/90 flex items-center justify-center p-4">
-      <div className="w-full max-w-md animate-fade-in">
+    <div className="min-h-screen premium-gradient-bg flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-navy-light/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-accent/10 rounded-full blur-3xl"></div>
+      </div>
+      
+      <div className="w-full max-w-md animate-fade-in relative z-10">
         {/* Logo Section */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-accent rounded-2xl mb-4 shadow-lg">
-            <FileText className="w-10 h-10 text-white" />
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-24 h-24 premium-gradient-accent rounded-3xl mb-6 shadow-2xl hover:scale-105 transition-transform duration-300">
+            <FileText className="w-12 h-12 text-white" />
           </div>
-          <h1 className="text-4xl font-heading font-bold text-white mb-2">Zen Engineering</h1>
-          <p className="text-primary-foreground/80">Quotation Management System</p>
+          <h1 className="text-5xl font-heading font-bold text-white mb-3 tracking-tight">Zen Engineering</h1>
+          <p className="text-primary-foreground/90 text-lg font-medium">Quotation Management System</p>
         </div>
 
         {/* Login Card */}
-        <Card className="border-0 shadow-2xl">
-          <CardHeader>
-            <CardTitle className="text-2xl">Admin Login</CardTitle>
-            <CardDescription>
+        <Card className="border-0 shadow-2xl backdrop-blur-sm bg-white/95 animate-scale-in">
+          <CardHeader className="space-y-3 pb-6">
+            <CardTitle className="text-3xl font-heading">Admin Login</CardTitle>
+            <CardDescription className="text-base">
               Sign in to manage quotations and clients
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSignIn} className="space-y-4">
+            <form onSubmit={handleSignIn} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
+                <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
                 <Input
                   id="email"
                   type="email"
@@ -79,12 +85,12 @@ const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="h-12"
+                  className="h-12 border-2 focus:border-primary transition-colors"
                   disabled={isLoading}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-sm font-medium">Password</Label>
                 <Input
                   id="password"
                   type="password"
@@ -92,13 +98,13 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="h-12"
+                  className="h-12 border-2 focus:border-primary transition-colors"
                   disabled={isLoading}
                 />
               </div>
               <Button 
                 type="submit" 
-                className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
+                className="w-full h-12 premium-gradient-bg text-primary-foreground font-semibold text-base shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
                 disabled={isLoading}
               >
                 {isLoading ? 'Signing in...' : 'Sign In'}
@@ -108,7 +114,7 @@ const Login = () => {
         </Card>
 
         {/* Footer */}
-        <p className="text-center text-primary-foreground/60 text-sm mt-8">
+        <p className="text-center text-primary-foreground/70 text-sm mt-10 font-medium">
           © 2025 Zen Engineering. All rights reserved.
         </p>
       </div>

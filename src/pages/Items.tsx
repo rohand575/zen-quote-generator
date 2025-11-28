@@ -118,13 +118,13 @@ const Items = () => {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-heading font-bold text-foreground mb-2">Items Catalog</h1>
-          <p className="text-muted-foreground">Manage your product and service catalog</p>
+          <h1 className="text-4xl font-heading font-bold text-foreground mb-2 tracking-tight">Items Catalog</h1>
+          <p className="text-muted-foreground text-lg">Manage your product and service catalog</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={handleDialogChange}>
           <DialogTrigger asChild>
-            <Button className="bg-accent hover:bg-accent/90 text-accent-foreground gap-2">
-              <Plus className="h-4 w-4" />
+            <Button className="premium-gradient-accent text-accent-foreground gap-2 h-11 px-6 font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
+              <Plus className="h-5 w-5" />
               Add Item
             </Button>
           </DialogTrigger>
@@ -183,7 +183,7 @@ const Items = () => {
         />
       </div>
 
-      <Card className="border-border shadow-sm">
+      <Card className="premium-card animate-slide-up">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full">

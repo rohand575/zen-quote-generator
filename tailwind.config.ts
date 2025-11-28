@@ -22,10 +22,13 @@ export default {
         navy: {
           DEFAULT: "hsl(var(--navy))",
           foreground: "hsl(var(--navy-foreground))",
+          light: "hsl(var(--navy-light))",
+          dark: "hsl(var(--navy-dark))",
         },
         orange: {
           DEFAULT: "hsl(var(--orange))",
           foreground: "hsl(var(--orange-foreground))",
+          glow: "hsl(var(--orange-glow))",
         },
         neutral: {
           DEFAULT: "hsl(var(--neutral))",

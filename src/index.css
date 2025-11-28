@@ -14,11 +14,14 @@ All colors MUST be HSL.
     /* Zen Engineering Brand Colors */
     --navy: 221 65% 32%; /* #1e3a8a - Primary Navy Blue */
     --navy-foreground: 0 0% 100%;
+    --navy-light: 221 65% 40%;
+    --navy-dark: 221 75% 25%;
     
     --orange: 30 100% 50%; /* #ff8c00 - Safety Orange */
     --orange-foreground: 0 0% 100%;
+    --orange-glow: 30 100% 60%;
     
-    --neutral-light: 0 0% 96%; /* #f5f5f5 */
+    --neutral-light: 0 0% 98%; /* #fafafa */
     --neutral: 0 0% 40%; /* #666666 */
 
     --card: 0 0% 100%;
@@ -30,11 +33,11 @@ All colors MUST be HSL.
     --primary: 221 65% 32%; /* Navy Blue */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 96%;
+    --secondary: 0 0% 98%;
     --secondary-foreground: 221 39% 11%;
 
     --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 40%;
+    --muted-foreground: 0 0% 45%;
 
     --accent: 30 100% 50%; /* Safety Orange */
     --accent-foreground: 0 0% 100%;
@@ -42,17 +45,31 @@ All colors MUST be HSL.
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
+    --border: 0 0% 92%;
+    --input: 0 0% 92%;
     --ring: 221 65% 32%;
 
     --radius: 0.75rem;
+    
+    /* Premium Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(221, 65%, 32%), hsl(221, 75%, 25%));
+    --gradient-accent: linear-gradient(135deg, hsl(30, 100%, 50%), hsl(30, 100%, 60%));
+    --gradient-subtle: linear-gradient(180deg, hsl(0, 0%, 100%), hsl(0, 0%, 98%));
+    
+    /* Premium Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+    --shadow-elegant: 0 10px 30px -10px hsl(221 65% 32% / 0.3);
+    --shadow-glow: 0 0 40px hsl(30 100% 50% / 0.2);
 
     --sidebar-background: 221 65% 32%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 0 0% 100%;
     --sidebar-primary-foreground: 221 65% 32%;
-    --sidebar-accent: 221 65% 28%;
+    --sidebar-accent: 221 65% 38%;
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 221 65% 28%;
     --sidebar-ring: 30 100% 50%;
@@ -120,17 +137,59 @@ All colors MUST be HSL.
 
 @layer utilities {
   .animate-fade-in {
-    animation: fadeIn 0.3s ease-out;
+    animation: fadeIn 0.5s ease-out;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out;
+  }
+  
+  .animate-scale-in {
+    animation: scaleIn 0.4s ease-out;
   }
   
   @keyframes fadeIn {
     from {
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateY(20px);
     }
     to {
       opacity: 1;
       transform: translateY(0);
     }
+  }
+  
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
+  .premium-card {
+    @apply bg-card rounded-xl border border-border shadow-lg hover:shadow-xl transition-all duration-300;
+  }
+  
+  .premium-gradient-bg {
+    background: var(--gradient-primary);
+  }
+  
+  .premium-gradient-accent {
+    background: var(--gradient-accent);
   }
 }
