@@ -3,40 +3,66 @@ import { FileText, Users, Package, Plus, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import type { Quotation, Client } from '@/types';
 
 const Dashboard = () => {
-  // Mock data - will be replaced with real data from backend
-  const stats = [
-    { label: 'Total Quotations', value: '24', icon: FileText, change: '+12%' },
-    { label: 'Active Clients', value: '18', icon: Users, change: '+5%' },
-    { label: 'Catalog Items', value: '156', icon: Package, change: '+8%' },
-    { label: 'Revenue (Est.)', value: '₹12.5L', icon: TrendingUp, change: '+18%' },
-  ];
+  const { data: quotations = [], isLoading: quotationsLoading } = useQuery({
+    queryKey: ['quotations'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('quotations')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data as Quotation[];
+    },
+  });
 
-  const recentQuotations = [
-    { 
-      id: 'ZEN-2025-0024', 
-      client: 'ABC Industries', 
-      project: 'Industrial Automation System',
-      date: '2025-11-25', 
-      status: 'sent', 
-      total: 245000 
+  const { data: clients = [] } = useQuery({
+    queryKey: ['clients'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('clients')
+        .select('*');
+      
+      if (error) throw error;
+      return data as Client[];
     },
-    { 
-      id: 'ZEN-2025-0023', 
-      client: 'XYZ Manufacturing', 
-      project: 'Safety Equipment Installation',
-      date: '2025-11-24', 
-      status: 'draft', 
-      total: 180000 
+  });
+
+  const { data: itemsCount = 0 } = useQuery({
+    queryKey: ['items-count'],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('items')
+        .select('*', { count: 'exact', head: true });
+      
+      if (error) throw error;
+      return count || 0;
     },
+  });
+
+  const recentQuotations = quotations.slice(0, 5);
+  const totalRevenue = quotations.reduce((sum, q) => sum + Number(q.total), 0);
+
+  const stats = [
+    { label: 'Total Quotations', value: quotations.length.toString(), icon: FileText, change: '+12%' },
+    { label: 'Active Clients', value: clients.length.toString(), icon: Users, change: '+5%' },
+    { label: 'Catalog Items', value: itemsCount.toString(), icon: Package, change: '+8%' },
     { 
-      id: 'ZEN-2025-0022', 
-      client: 'Tech Solutions Ltd', 
-      project: 'Control Panel Upgrade',
-      date: '2025-11-23', 
-      status: 'accepted', 
-      total: 320000 
+      label: 'Revenue (Est.)', 
+      value: new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        maximumFractionDigits: 0,
+        notation: 'compact',
+        compactDisplay: 'short'
+      }).format(totalRevenue), 
+      icon: TrendingUp, 
+      change: '+18%' 
     },
   ];
 
@@ -62,6 +88,19 @@ const Dashboard = () => {
       maximumFractionDigits: 0,
     }).format(amount);
   };
+
+  const getClientName = (clientId: string) => {
+    const client = clients.find(c => c.id === clientId);
+    return client?.name || 'Unknown Client';
+  };
+
+  if (quotationsLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -113,38 +152,45 @@ const Dashboard = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Quote #</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Client</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Project</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Date</th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Status</th>
-                  <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentQuotations.map((quote) => (
-                  <tr key={quote.id} className="border-b border-border hover:bg-muted/50 transition-colors">
-                    <td className="py-4 px-4">
-                      <Link to={`/quotations/${quote.id}`} className="text-primary hover:underline font-mono text-sm">
-                        {quote.id}
-                      </Link>
-                    </td>
-                    <td className="py-4 px-4 text-sm">{quote.client}</td>
-                    <td className="py-4 px-4 text-sm">{quote.project}</td>
-                    <td className="py-4 px-4 text-sm text-muted-foreground">
-                      {new Date(quote.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                    </td>
-                    <td className="py-4 px-4">{getStatusBadge(quote.status)}</td>
-                    <td className="py-4 px-4 text-right font-mono font-medium">{formatCurrency(quote.total)}</td>
+          {recentQuotations.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>No quotations yet. Create your first one!</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Quote #</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Client</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Project</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Date</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Status</th>
+                    <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Total</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {recentQuotations.map((quote) => (
+                    <tr key={quote.id} className="border-b border-border hover:bg-muted/50 transition-colors">
+                      <td className="py-4 px-4">
+                        <Link to={`/quotations/${quote.id}/print`} className="text-primary hover:underline font-mono text-sm">
+                          {quote.quotation_number}
+                        </Link>
+                      </td>
+                      <td className="py-4 px-4 text-sm">{getClientName(quote.client_id)}</td>
+                      <td className="py-4 px-4 text-sm">{quote.project_title}</td>
+                      <td className="py-4 px-4 text-sm text-muted-foreground">
+                        {new Date(quote.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </td>
+                      <td className="py-4 px-4">{getStatusBadge(quote.status)}</td>
+                      <td className="py-4 px-4 text-right font-mono font-medium">{formatCurrency(Number(quote.total))}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

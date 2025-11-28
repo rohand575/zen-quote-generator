@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { FileText } from 'lucide-react';
 import { authService } from '@/lib/auth';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,31 +22,6 @@ const Login = () => {
       }
     });
   }, [navigate]);
-
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!email || !email.includes('@')) {
-      toast.error('Please enter a valid email address');
-      return;
-    }
-
-    if (password.length < 6) {
-      toast.error('Password must be at least 6 characters');
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      await authService.signUp(email, password);
-      toast.success('Account created! Welcome to Zen Engineering!');
-      navigate('/', { replace: true });
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to create account');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,7 +54,7 @@ const Login = () => {
         {/* Logo Section */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-accent rounded-2xl mb-4 shadow-lg">
-            <span className="text-white font-bold text-3xl">Z</span>
+            <FileText className="w-10 h-10 text-white" />
           </div>
           <h1 className="text-4xl font-heading font-bold text-white mb-2">Zen Engineering</h1>
           <p className="text-primary-foreground/80">Quotation Management System</p>
@@ -88,96 +63,47 @@ const Login = () => {
         {/* Login Card */}
         <Card className="border-0 shadow-2xl">
           <CardHeader>
-            <CardTitle className="text-2xl">Admin Access</CardTitle>
+            <CardTitle className="text-2xl">Admin Login</CardTitle>
             <CardDescription>
-              Sign in or create an account to manage quotations
+              Sign in to manage quotations and clients
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="signin" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signin">Sign In</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="signin">
-                <form onSubmit={handleSignIn} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email Address</Label>
-                    <Input
-                      id="signin-email"
-                      type="email"
-                      placeholder="admin@zenengineering.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="h-12"
-                      disabled={isLoading}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signin-password">Password</Label>
-                    <Input
-                      id="signin-password"
-                      type="password"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="h-12"
-                      disabled={isLoading}
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? 'Signing in...' : 'Sign In'}
-                  </Button>
-                </form>
-              </TabsContent>
-              
-              <TabsContent value="signup">
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email Address</Label>
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      placeholder="admin@zenengineering.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      className="h-12"
-                      disabled={isLoading}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="h-12"
-                      disabled={isLoading}
-                      minLength={6}
-                    />
-                    <p className="text-xs text-muted-foreground">Minimum 6 characters</p>
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full h-12 bg-accent hover:bg-accent/90 text-accent-foreground font-medium"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? 'Creating account...' : 'Create Account'}
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
+            <form onSubmit={handleSignIn} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="admin@zenengineering.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="h-12"
+                  disabled={isLoading}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="h-12"
+                  disabled={isLoading}
+                />
+              </div>
+              <Button 
+                type="submit" 
+                className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Signing in...' : 'Sign In'}
+              </Button>
+            </form>
           </CardContent>
         </Card>
 
