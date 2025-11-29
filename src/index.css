@@ -76,42 +76,52 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 221 39% 11%;
-    --foreground: 0 0% 98%;
+    --background: 222 42% 8%;
+    --foreground: 210 28% 92%;
 
-    --card: 221 39% 11%;
-    --card-foreground: 0 0% 98%;
+    --card: 222 36% 12%;
+    --card-foreground: 210 28% 96%;
 
-    --popover: 221 39% 11%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 222 36% 12%;
+    --popover-foreground: 210 28% 96%;
 
-    --primary: 221 65% 32%;
+    --primary: 221 73% 56%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 222 32% 15%;
+    --secondary-foreground: 210 28% 92%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 222 28% 18%;
+    --muted-foreground: 214 18% 74%;
 
-    --accent: 30 100% 50%;
+    --accent: 28 96% 58%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 70% 42%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 221 65% 32%;
+    --border: 222 28% 22%;
+    --input: 222 28% 22%;
+    --ring: 28 96% 58%;
     
-    --sidebar-background: 221 65% 32%;
-    --sidebar-foreground: 0 0% 100%;
+    --neutral-light: 223 30% 12%;
+    --neutral: 223 16% 70%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(222, 64%, 22%), hsl(223, 68%, 12%));
+    --gradient-accent: linear-gradient(135deg, hsl(28, 96%, 58%), hsl(18, 92%, 64%));
+    --gradient-subtle: linear-gradient(180deg, hsl(222, 40%, 10%), hsl(222, 36%, 8%));
+
+    --shadow-elegant: 0 10px 30px -10px hsl(222 64% 22% / 0.45);
+    --shadow-glow: 0 0 45px hsl(28 96% 58% / 0.25);
+
+    --sidebar-background: 223 48% 10%;
+    --sidebar-foreground: 0 0% 98%;
     --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 221 65% 32%;
-    --sidebar-accent: 221 65% 28%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 221 65% 28%;
-    --sidebar-ring: 30 100% 50%;
+    --sidebar-primary-foreground: 223 48% 10%;
+    --sidebar-accent: 222 64% 22%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 223 30% 18%;
+    --sidebar-ring: 28 96% 58%;
   }
 }
 
@@ -183,6 +193,22 @@ All colors MUST be HSL.
   
   .premium-card {
     @apply bg-card rounded-xl border border-border shadow-lg hover:shadow-xl transition-all duration-300;
+  }
+
+  /* Premium surfaces for the dark Zen look */
+  .glass-card {
+    background: linear-gradient(150deg, hsl(var(--card) / 0.9), hsl(var(--background) / 0.85));
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-xl), var(--shadow-elegant);
+    backdrop-filter: blur(14px);
+  }
+  
+  .accent-glow {
+    box-shadow: 0 0 0 1px hsl(var(--border)), 0 15px 35px -15px hsl(var(--accent) / 0.55);
+  }
+
+  .soft-divider {
+    border-color: hsl(var(--border) / 0.65);
   }
   
   .premium-gradient-bg {

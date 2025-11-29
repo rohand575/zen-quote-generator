@@ -184,13 +184,13 @@ const Clients = () => {
           placeholder="Search clients by name, email, or city..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
+          className="pl-10 bg-card/80 border-border/60 focus:border-accent focus:ring-0"
         />
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {filteredClients.map((client: any) => (
-          <Card key={client.id} className="premium-card group cursor-pointer hover:scale-105 transition-all duration-300">
+          <Card key={client.id} className="premium-card glass-card accent-glow group cursor-pointer hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300">
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div>
@@ -198,10 +198,10 @@ const Clients = () => {
                   <p className="text-sm text-muted-foreground mt-1">{client.city}</p>
                 </div>
                 <div className="flex gap-1">
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(client)}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent/15" onClick={() => handleEdit(client)}>
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDelete(client.id)}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDelete(client.id)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -230,7 +230,7 @@ const Clients = () => {
       </div>
 
       {filteredClients.length === 0 && (
-        <Card className="border-border shadow-sm">
+        <Card className="premium-card glass-card accent-glow">
           <CardContent className="flex flex-col items-center justify-center py-12">
             <p className="text-muted-foreground">No clients found matching your search</p>
           </CardContent>

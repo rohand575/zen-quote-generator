@@ -36,6 +36,32 @@ const QuotationPrint = () => {
     });
   };
 
+  const terms = [
+    {
+      id: 1,
+      title: 'Payment Terms',
+      text: '1) 50% advance to be released along with PO. 2) 30% before material dispatch. 3) 15% RA BILL. 4) 5% after completion of job within 7 working days.',
+    },
+    {
+      id: 2,
+      title: 'Delivery Time',
+      text: 'Dated: 30-10-2025. Ex Stock, 15 / 30 / 60 / 90 days from date of receipt of PO with advance payment. Techno-commercially clear order with final colour / shade selections as applicable etc.',
+    },
+    { id: 3, title: 'Transportation', text: 'Inclusive.' },
+    { id: 4, title: 'Packing', text: 'Inclusive.' },
+    { id: 5, title: 'Unloading/ Warai charges IF ANY', text: 'In Client Scope.' },
+    { id: 6, title: 'Price Validity', text: '30 Days from date of submission of quotation.' },
+    { id: 7, title: 'Supply Of Material', text: 'Supply will be as per standard box packing.' },
+    { id: 8, title: 'Jurisdiction', text: 'Under SANGLI Jurisdiction.' },
+    {
+      id: 9,
+      title: 'Statutory Variations',
+      text: 'Any change in the existing Duties / Taxes / Levies or any fresh imposition of Duties / Taxes / Levies by the Central/State Governments will be debited to Purchaser’s Account.',
+    },
+    { id: 10, title: 'SCAFFOLDING/ Labour accommodation', text: 'In Client Scope.' },
+    { id: 11, title: 'Return Policy', text: 'Goods once sold will not be returned.' },
+  ];
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -82,9 +108,14 @@ const QuotationPrint = () => {
       <Card className="print:shadow-none print:border-0" id={`quotation-${quotation.id}`}>
         <CardContent className="p-8">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-heading font-bold text-primary mb-2">Zen Engineering</h1>
-            <p className="text-muted-foreground">Industrial Automation & Safety Solutions</p>
+          <div className="mb-8 flex items-center gap-4">
+            <div className="w-16 h-16 rounded-xl overflow-hidden border border-primary/20 shadow-md">
+              <img src="/zen-logo.png" alt="Zen Engineering logo" className="w-full h-full object-contain" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-heading font-bold text-primary mb-1">Zen Engineering</h1>
+              <p className="text-muted-foreground">Industrial Automation & Safety Solutions</p>
+            </div>
           </div>
 
           {/* Quotation Info */}
@@ -187,6 +218,22 @@ const QuotationPrint = () => {
               <p className="text-sm text-muted-foreground whitespace-pre-line">{quotation.notes}</p>
             </div>
           )}
+
+          {/* Terms & Conditions */}
+          <div className="mb-8">
+            <h3 className="text-xl font-heading font-semibold mb-3">Terms &amp; Conditions</h3>
+            <table className="w-full border-collapse">
+              <tbody>
+                {terms.map((term) => (
+                  <tr key={term.id} className="align-top border-b border-border/70 last:border-b-0">
+                    <td className="py-2 pr-3 text-sm font-semibold text-muted-foreground w-10">{term.id}.</td>
+                    <td className="py-2 pr-4 text-sm font-semibold">{term.title}</td>
+                    <td className="py-2 text-sm text-muted-foreground">{term.text}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           {/* Footer */}
           <div className="text-center text-sm text-muted-foreground pt-8 border-t">

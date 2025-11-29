@@ -49,28 +49,28 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen premium-gradient-bg flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-[hsl(var(--navy-dark))] via-[hsl(var(--background))] to-[hsl(var(--navy))] flex items-center justify-center p-4 relative overflow-hidden text-foreground">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-navy-light/10 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-accent/10 rounded-full blur-3xl"></div>
+        <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-[hsl(var(--navy-light))]/15 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-[hsl(var(--navy))]/18 rounded-full blur-3xl"></div>
       </div>
       
       <div className="w-full max-w-md animate-fade-in relative z-10">
         {/* Logo Section */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-24 h-24 premium-gradient-accent rounded-3xl mb-6 shadow-2xl hover:scale-105 transition-transform duration-300">
-            <FileText className="w-12 h-12 text-white" />
+          <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl overflow-hidden border border-white/20 bg-white/5 backdrop-blur shadow-2xl hover:scale-105 transition-transform duration-300">
+            <img src="/zen-logo.png" alt="Zen Engineering logo" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-5xl font-heading font-bold text-white mb-3 tracking-tight">Zen Engineering</h1>
           <p className="text-primary-foreground/90 text-lg font-medium">Quotation Management System</p>
         </div>
 
         {/* Login Card */}
-        <Card className="border-0 shadow-2xl backdrop-blur-sm bg-white/95 animate-scale-in">
+        <Card className="border border-border/70 shadow-2xl backdrop-blur-md bg-card/90 animate-scale-in">
           <CardHeader className="space-y-3 pb-6">
-            <CardTitle className="text-3xl font-heading">Admin Login</CardTitle>
-            <CardDescription className="text-base">
+            <CardTitle className="text-3xl font-heading text-foreground">Admin Login</CardTitle>
+            <CardDescription className="text-base text-muted-foreground">
               Sign in to manage quotations and clients
             </CardDescription>
           </CardHeader>
@@ -85,7 +85,7 @@ const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="h-12 border-2 focus:border-primary transition-colors"
+                  className="h-12 border-2 border-border/70 bg-background/80 focus:border-accent focus:ring-0 transition-colors"
                   disabled={isLoading}
                 />
               </div>
@@ -94,11 +94,11 @@ const Login = () => {
                 <Input
                   id="password"
                   type="password"
-                  placeholder="••••••••"
+                  placeholder="********"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="h-12 border-2 focus:border-primary transition-colors"
+                  className="h-12 border-2 border-border/70 bg-background/80 focus:border-accent focus:ring-0 transition-colors"
                   disabled={isLoading}
                 />
               </div>
@@ -114,8 +114,8 @@ const Login = () => {
         </Card>
 
         {/* Footer */}
-        <p className="text-center text-primary-foreground/70 text-sm mt-10 font-medium">
-          © 2025 Zen Engineering. All rights reserved.
+        <p className="text-center text-muted-foreground text-sm mt-10 font-medium">
+          (c) 2025 Zen Engineering. All rights reserved.
         </p>
       </div>
     </div>

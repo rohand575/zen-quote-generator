@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -27,12 +27,39 @@ const navItems = [
 export const AppShell = ({ children }: AppShellProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState<AuthUser | null>(null);
+  const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const IDLE_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 
   useEffect(() => {
     authService.getUser().then(setUser);
   }, []);
+
+  useEffect(() => {
+    const resetIdleTimer = () => {
+      if (idleTimer.current) clearTimeout(idleTimer.current);
+      idleTimer.current = setTimeout(async () => {
+        try {
+          await authService.signOut();
+          toast.info('Logged out after 5 minutes of inactivity');
+        } catch (error) {
+          toast.error('Session expired. Please sign in again.');
+        } finally {
+          navigate('/login');
+        }
+      }, IDLE_TIMEOUT_MS);
+    };
+
+    const events = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'];
+    events.forEach((event) => window.addEventListener(event, resetIdleTimer));
+    resetIdleTimer();
+
+    return () => {
+      events.forEach((event) => window.removeEventListener(event, resetIdleTimer));
+      if (idleTimer.current) clearTimeout(idleTimer.current);
+    };
+  }, [navigate]);
 
   const handleLogout = async () => {
     try {
@@ -45,12 +72,12 @@ export const AppShell = ({ children }: AppShellProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-light via-background to-neutral-light">
+    <div className="min-h-screen bg-gradient-to-br from-[hsl(var(--navy-dark))] via-[hsl(var(--background))] to-[hsl(var(--navy))] text-foreground">
       {/* Mobile Header */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 premium-gradient-bg border-b border-primary/20 flex items-center justify-between px-4 z-50 shadow-lg">
+      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 border-b border-primary/40 flex items-center justify-between px-4 z-50 shadow-lg bg-[linear-gradient(120deg,hsl(var(--navy-dark)),hsl(var(--navy)))] backdrop-blur-xl">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 premium-gradient-accent rounded-xl flex items-center justify-center shadow-md">
-            <span className="text-white font-bold text-base">Z</span>
+          <div className="w-10 h-10 rounded-xl overflow-hidden bg-white/10 border border-white/20 shadow-md">
+            <img src="/zen-logo.png" alt="Zen Engineering logo" className="w-full h-full object-contain" />
           </div>
           <span className="text-primary-foreground font-heading font-bold text-lg tracking-tight">Zen Engineering</span>
         </div>
@@ -67,7 +94,8 @@ export const AppShell = ({ children }: AppShellProps) => {
       {/* Sidebar */}
       <aside
         className={`
-          fixed top-0 left-0 h-full w-64 premium-gradient-bg text-sidebar-foreground shadow-2xl
+          fixed top-0 left-0 h-full w-64 text-sidebar-foreground shadow-2xl border-r border-sidebar-border/60
+          bg-[linear-gradient(180deg,hsl(var(--navy-dark))_0%,hsl(var(--background))_70%)]
           transform transition-transform duration-300 ease-in-out z-40
           lg:translate-x-0
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
@@ -76,8 +104,8 @@ export const AppShell = ({ children }: AppShellProps) => {
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className="h-16 flex items-center gap-3 px-6 border-b border-sidebar-border/50">
-            <div className="w-11 h-11 premium-gradient-accent rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-lg">Z</span>
+            <div className="w-12 h-12 rounded-xl overflow-hidden bg-white/5 border border-white/20 shadow-lg">
+              <img src="/zen-logo.png" alt="Zen Engineering logo" className="w-full h-full object-contain" />
             </div>
             <div>
               <h1 className="font-heading font-bold text-lg tracking-tight">Zen Engineering</h1>
@@ -102,7 +130,7 @@ export const AppShell = ({ children }: AppShellProps) => {
                         transition-all duration-300 group
                         ${isActive 
                           ? 'bg-sidebar-accent text-sidebar-accent-foreground font-semibold shadow-lg scale-105' 
-                          : 'text-sidebar-foreground/80 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground hover:scale-105'
+                          : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground hover:scale-105'
                         }
                       `}
                     >
@@ -145,7 +173,7 @@ export const AppShell = ({ children }: AppShellProps) => {
       )}
 
       {/* Main Content */}
-      <main className="lg:ml-64 pt-16 lg:pt-0 min-h-screen">
+      <main className="lg:ml-64 pt-16 lg:pt-0 min-h-screen bg-[radial-gradient(circle_at_20%_20%,hsl(var(--navy-light))_0%,transparent_35%),radial-gradient(circle_at_80%_0%,hsl(var(--navy))_0%,transparent_30%)]">
         <div className="p-6 lg:p-8">
           {children}
         </div>

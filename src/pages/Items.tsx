@@ -179,27 +179,27 @@ const Items = () => {
           placeholder="Search items by name or category..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
+          className="pl-10 bg-card/80 border-border/60 focus:border-accent focus:ring-0"
         />
       </div>
 
-      <Card className="premium-card animate-slide-up">
+      <Card className="premium-card glass-card accent-glow animate-slide-up">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-border bg-muted/50">
-                  <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">Item Name</th>
-                  <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">Description</th>
-                  <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">Category</th>
-                  <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">Unit</th>
-                  <th className="text-right py-4 px-6 text-sm font-medium text-muted-foreground">Unit Price</th>
-                  <th className="text-right py-4 px-6 text-sm font-medium text-muted-foreground">Actions</th>
+                <tr className="border-b soft-divider bg-[hsl(var(--navy))/0.14]">
+                  <th className="text-left py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Item Name</th>
+                  <th className="text-left py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Description</th>
+                  <th className="text-left py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Category</th>
+                  <th className="text-left py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Unit</th>
+                  <th className="text-right py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Unit Price</th>
+                  <th className="text-right py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredItems.map((item: any, index: number) => (
-                  <tr key={item.id} className={`border-b border-border hover:bg-muted/50 transition-colors ${index % 2 === 0 ? 'bg-background' : 'bg-muted/20'}`}>
+                  <tr key={item.id} className={`border-b soft-divider hover:bg-[hsl(var(--card))/0.6] transition-colors ${index % 2 === 0 ? 'bg-background/60' : 'bg-muted/30'}`}>
                     <td className="py-4 px-6 font-medium">{item.name}</td>
                     <td className="py-4 px-6 text-sm text-muted-foreground max-w-xs truncate">{item.description}</td>
                     <td className="py-4 px-6 text-sm">{item.category}</td>
@@ -224,7 +224,7 @@ const Items = () => {
       </Card>
 
       {filteredItems.length === 0 && (
-        <Card className="border-border shadow-sm">
+        <Card className="premium-card glass-card accent-glow">
           <CardContent className="flex flex-col items-center justify-center py-12">
             <p className="text-muted-foreground">No items found matching your search</p>
           </CardContent>

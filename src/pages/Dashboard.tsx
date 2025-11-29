@@ -125,15 +125,15 @@ const Dashboard = () => {
           return (
             <Card 
               key={stat.label} 
-              className="premium-card group cursor-pointer hover:scale-105 transition-all duration-300"
+              className="premium-card glass-card accent-glow group cursor-pointer hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <CardHeader className="flex flex-row items-center justify-between pb-3">
-                <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+              <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-border/60">
+                <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide tracking-[0.08em]">
                   {stat.label}
                 </CardTitle>
-                <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                  <Icon className="h-5 w-5 text-primary" />
+                <div className="p-2 rounded-lg bg-[hsl(var(--accent))]/10 group-hover:bg-[hsl(var(--accent))]/20 transition-colors">
+                  <Icon className="h-5 w-5 text-accent" />
                 </div>
               </CardHeader>
               <CardContent>
@@ -149,8 +149,8 @@ const Dashboard = () => {
       </div>
 
       {/* Recent Quotations */}
-      <Card className="premium-card animate-slide-up">
-        <CardHeader className="border-b border-border pb-6">
+      <Card className="premium-card glass-card accent-glow animate-slide-up">
+        <CardHeader className="border-b soft-divider pb-6">
           <div className="flex items-center justify-between">
             <CardTitle className="text-2xl font-heading">Recent Quotations</CardTitle>
             <Link to="/quotations">
@@ -168,18 +168,18 @@ const Dashboard = () => {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Quote #</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Client</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Project</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Date</th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">Status</th>
-                    <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">Total</th>
+                  <tr className="border-b soft-divider bg-[hsl(var(--navy))/0.14]">
+                    <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground tracking-wide uppercase">Quote #</th>
+                    <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground tracking-wide uppercase">Client</th>
+                    <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground tracking-wide uppercase">Project</th>
+                    <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground tracking-wide uppercase">Date</th>
+                    <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground tracking-wide uppercase">Status</th>
+                    <th className="text-right py-3 px-4 text-xs font-semibold text-muted-foreground tracking-wide uppercase">Total</th>
                   </tr>
                 </thead>
                 <tbody>
                   {recentQuotations.map((quote) => (
-                    <tr key={quote.id} className="border-b border-border hover:bg-muted/30 transition-all duration-200 group">
+                    <tr key={quote.id} className="border-b soft-divider hover:bg-[hsl(var(--card))/0.6] transition-all duration-200 group">
                       <td className="py-5 px-4">
                         <Link to={`/quotations/${quote.id}/print`} className="text-primary hover:text-accent font-mono text-sm font-semibold transition-colors">
                           {quote.quotation_number}

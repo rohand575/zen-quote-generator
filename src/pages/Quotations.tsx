@@ -167,7 +167,7 @@ const Quotations = () => {
       </div>
 
       {/* Search and Filters */}
-      <Card className="border-border shadow-sm bg-card">
+      <Card className="premium-card glass-card accent-glow">
         <CardContent className="p-6 space-y-4">
           {/* Search */}
           <div className="relative">
@@ -176,7 +176,7 @@ const Quotations = () => {
               placeholder="Search by quotation number, client, or project..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 bg-card/80 border-border/60 focus:border-accent focus:ring-0"
             />
           </div>
 
@@ -270,7 +270,7 @@ const Quotations = () => {
                 variant="ghost"
                 size="sm"
                 onClick={clearFilters}
-                className="gap-2 text-muted-foreground hover:text-foreground"
+                className="gap-2 text-muted-foreground hover:text-foreground hover:bg-accent/10"
               >
                 <X className="h-4 w-4" />
                 Clear All
@@ -280,7 +280,7 @@ const Quotations = () => {
 
           {/* Active Filters Summary */}
           {hasActiveFilters && (
-            <div className="flex flex-wrap gap-2 pt-2 border-t border-border">
+            <div className="flex flex-wrap gap-2 pt-2 border-t soft-divider">
               <span className="text-xs text-muted-foreground">Active filters:</span>
               {statusFilter !== 'all' && (
                 <Badge variant="secondary" className="text-xs">
@@ -313,11 +313,11 @@ const Quotations = () => {
       </Card>
 
       {/* Quotations Table */}
-      <Card className="border-border shadow-sm">
+      <Card className="premium-card glass-card accent-glow">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             {filteredQuotations.length > 0 && (
-              <div className="flex items-center gap-2 px-6 py-4 border-b border-border">
+              <div className="flex items-center gap-2 px-6 py-4 border-b soft-divider bg-[hsl(var(--card))/0.6]">
                 <Checkbox
                   checked={selectedQuotations.length === filteredQuotations.length}
                   onCheckedChange={toggleSelectAll}
@@ -329,20 +329,20 @@ const Quotations = () => {
             )}
             <table className="w-full">
               <thead>
-                <tr className="border-b border-border bg-muted/50">
+                <tr className="border-b soft-divider bg-[hsl(var(--navy))/0.14]">
                   <th className="w-12"></th>
-                  <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">Quote #</th>
-                  <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">Client</th>
-                  <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">Project</th>
-                  <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">Date</th>
-                  <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">Status</th>
-                  <th className="text-right py-4 px-6 text-sm font-medium text-muted-foreground">Total</th>
-                  <th className="text-right py-4 px-6 text-sm font-medium text-muted-foreground">Actions</th>
+                  <th className="text-left py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Quote #</th>
+                  <th className="text-left py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Client</th>
+                  <th className="text-left py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Project</th>
+                  <th className="text-left py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Date</th>
+                  <th className="text-left py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Status</th>
+                  <th className="text-right py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Total</th>
+                  <th className="text-right py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredQuotations.map((quote, index) => (
-                  <tr key={quote.id} className={`border-b border-border hover:bg-muted/50 transition-colors ${index % 2 === 0 ? 'bg-background' : 'bg-muted/20'}`}>
+                  <tr key={quote.id} className={`border-b soft-divider hover:bg-[hsl(var(--card))/0.6] transition-colors ${index % 2 === 0 ? 'bg-background/60' : 'bg-muted/30'}`}>
                     <td className="px-6">
                       <Checkbox
                         checked={selectedQuotations.includes(quote.id)}
@@ -363,12 +363,12 @@ const Quotations = () => {
                     <td className="py-4 px-6 text-right font-mono font-medium">{formatCurrency(quote.total)}</td>
                     <td className="py-4 px-6 text-right">
                       <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent/10" asChild>
                           <Link to={`/quotations/${quote.id}/print`}>
                             <Eye className="h-4 w-4" />
                           </Link>
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent/10" asChild>
                           <Link to={`/quotations/${quote.id}/edit`}>
                             <Edit className="h-4 w-4" />
                           </Link>
@@ -376,7 +376,7 @@ const Quotations = () => {
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          className="h-8 w-8 text-destructive hover:text-destructive"
+                          className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                           onClick={() => handleDelete(quote.id)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -392,7 +392,7 @@ const Quotations = () => {
       </Card>
 
       {filteredQuotations.length === 0 && (
-        <Card className="border-border shadow-sm">
+        <Card className="premium-card glass-card accent-glow">
           <CardContent className="flex flex-col items-center justify-center py-12">
             <p className="text-muted-foreground">No quotations found matching your search</p>
           </CardContent>
