@@ -1,21 +1,35 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Search, Eye, Edit, Trash2 } from 'lucide-react';
+import { Plus, Search, Eye, Edit, Trash2, Filter, X } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { quotationsApi } from '@/lib/api';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { quotationsApi, clientsApi } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 const Quotations = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [clientFilter, setClientFilter] = useState<string>('all');
+  const [dateFrom, setDateFrom] = useState<Date | undefined>();
+  const [dateTo, setDateTo] = useState<Date | undefined>();
   const queryClient = useQueryClient();
   
   const { data: quotations = [], isLoading } = useQuery({
     queryKey: ['quotations'],
     queryFn: quotationsApi.getAll,
+  });
+
+  const { data: clients = [] } = useQuery({
+    queryKey: ['clients'],
+    queryFn: clientsApi.getAll,
   });
 
   const deleteMutation = useMutation({
@@ -36,11 +50,36 @@ const Quotations = () => {
     },
   });
 
-  const filteredQuotations = quotations.filter(quote => 
-    quote.quotation_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    quote.client?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    quote.project_title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredQuotations = quotations.filter(quote => {
+    // Text search
+    const matchesSearch = 
+      quote.quotation_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      quote.client?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      quote.project_title.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Status filter
+    const matchesStatus = statusFilter === 'all' || quote.status === statusFilter;
+    
+    // Client filter
+    const matchesClient = clientFilter === 'all' || quote.client_id === clientFilter;
+    
+    // Date range filter
+    const quoteDate = new Date(quote.created_at);
+    const matchesDateFrom = !dateFrom || quoteDate >= dateFrom;
+    const matchesDateTo = !dateTo || quoteDate <= dateTo;
+    
+    return matchesSearch && matchesStatus && matchesClient && matchesDateFrom && matchesDateTo;
+  });
+
+  const clearFilters = () => {
+    setStatusFilter('all');
+    setClientFilter('all');
+    setDateFrom(undefined);
+    setDateTo(undefined);
+    setSearchTerm('');
+  };
+
+  const hasActiveFilters = statusFilter !== 'all' || clientFilter !== 'all' || dateFrom || dateTo || searchTerm;
 
   const handleDelete = (id: string) => {
     if (confirm('Are you sure you want to delete this quotation?')) {
@@ -95,16 +134,151 @@ const Quotations = () => {
         </Link>
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search by quotation number, client, or project..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
-        />
-      </div>
+      {/* Search and Filters */}
+      <Card className="border-border shadow-sm bg-card">
+        <CardContent className="p-6 space-y-4">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by quotation number, client, or project..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
+          {/* Filters */}
+          <div className="flex flex-wrap gap-3 items-center">
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-muted-foreground">Filters:</span>
+            </div>
+
+            {/* Status Filter */}
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[140px] bg-background">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="sent">Sent</SelectItem>
+                <SelectItem value="accepted">Accepted</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Client Filter */}
+            <Select value={clientFilter} onValueChange={setClientFilter}>
+              <SelectTrigger className="w-[180px] bg-background">
+                <SelectValue placeholder="Client" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Clients</SelectItem>
+                {clients.map((client) => (
+                  <SelectItem key={client.id} value={client.id}>
+                    {client.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Date From */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-[140px] justify-start text-left font-normal bg-background",
+                    !dateFrom && "text-muted-foreground"
+                  )}
+                >
+                  {dateFrom ? format(dateFrom, "dd MMM yyyy") : "From Date"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={dateFrom}
+                  onSelect={setDateFrom}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+
+            {/* Date To */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-[140px] justify-start text-left font-normal bg-background",
+                    !dateTo && "text-muted-foreground"
+                  )}
+                >
+                  {dateTo ? format(dateTo, "dd MMM yyyy") : "To Date"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={dateTo}
+                  onSelect={setDateTo}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+
+            {/* Clear Filters */}
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearFilters}
+                className="gap-2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+                Clear All
+              </Button>
+            )}
+          </div>
+
+          {/* Active Filters Summary */}
+          {hasActiveFilters && (
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-border">
+              <span className="text-xs text-muted-foreground">Active filters:</span>
+              {statusFilter !== 'all' && (
+                <Badge variant="secondary" className="text-xs">
+                  Status: {statusFilter}
+                </Badge>
+              )}
+              {clientFilter !== 'all' && (
+                <Badge variant="secondary" className="text-xs">
+                  Client: {clients.find(c => c.id === clientFilter)?.name}
+                </Badge>
+              )}
+              {dateFrom && (
+                <Badge variant="secondary" className="text-xs">
+                  From: {format(dateFrom, "dd MMM yyyy")}
+                </Badge>
+              )}
+              {dateTo && (
+                <Badge variant="secondary" className="text-xs">
+                  To: {format(dateTo, "dd MMM yyyy")}
+                </Badge>
+              )}
+              {searchTerm && (
+                <Badge variant="secondary" className="text-xs">
+                  Search: "{searchTerm}"
+                </Badge>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Quotations Table */}
       <Card className="border-border shadow-sm">
