@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { quotationsApi } from '@/lib/api';
 import { QuotationLineItem } from '@/types';
+import { GoogleExportDialog } from '@/components/GoogleExportDialog';
 
 const QuotationPrint = () => {
   const { id } = useParams();
@@ -66,13 +67,19 @@ const QuotationPrint = () => {
             <p className="text-muted-foreground">{quotation.quotation_number}</p>
           </div>
         </div>
-        <Button onClick={handlePrint} className="gap-2">
-          <Download className="h-4 w-4" />
-          Download PDF
-        </Button>
+        <div className="flex gap-2">
+          <GoogleExportDialog
+            quotations={[quotation]}
+            mode="single"
+          />
+          <Button onClick={handlePrint} className="gap-2">
+            <Download className="h-4 w-4" />
+            Download PDF
+          </Button>
+        </div>
       </div>
 
-      <Card className="print:shadow-none print:border-0">
+      <Card className="print:shadow-none print:border-0" id={`quotation-${quotation.id}`}>
         <CardContent className="p-8">
           {/* Header */}
           <div className="mb-8">

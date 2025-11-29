@@ -9,10 +9,12 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
+import { Checkbox } from '@/components/ui/checkbox';
 import { quotationsApi, clientsApi } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { GoogleExportDialog } from '@/components/GoogleExportDialog';
 
 const Quotations = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -20,6 +22,7 @@ const Quotations = () => {
   const [clientFilter, setClientFilter] = useState<string>('all');
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
+  const [selectedQuotations, setSelectedQuotations] = useState<string[]>([]);
   const queryClient = useQueryClient();
   
   const { data: quotations = [], isLoading } = useQuery({
@@ -70,6 +73,22 @@ const Quotations = () => {
     
     return matchesSearch && matchesStatus && matchesClient && matchesDateFrom && matchesDateTo;
   });
+
+  const selectedQuotationData = quotations.filter(q => selectedQuotations.includes(q.id));
+
+  const toggleSelectAll = () => {
+    if (selectedQuotations.length === filteredQuotations.length) {
+      setSelectedQuotations([]);
+    } else {
+      setSelectedQuotations(filteredQuotations.map(q => q.id));
+    }
+  };
+
+  const toggleSelectQuotation = (id: string) => {
+    setSelectedQuotations(prev =>
+      prev.includes(id) ? prev.filter(qId => qId !== id) : [...prev, id]
+    );
+  };
 
   const clearFilters = () => {
     setStatusFilter('all');
@@ -122,9 +141,22 @@ const Quotations = () => {
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-heading font-bold text-foreground mb-2">Quotations</h1>
-          <p className="text-muted-foreground">Manage all your project quotations</p>
+        <div className="flex items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-heading font-bold text-foreground mb-2">Quotations</h1>
+            <p className="text-muted-foreground">Manage all your project quotations</p>
+          </div>
+          {selectedQuotations.length > 0 && (
+            <GoogleExportDialog
+              quotations={selectedQuotationData}
+              mode="bulk"
+              trigger={
+                <Button variant="outline" size="sm">
+                  Export Selected ({selectedQuotations.length})
+                </Button>
+              }
+            />
+          )}
         </div>
         <Link to="/quotations/create">
           <Button className="bg-accent hover:bg-accent/90 text-accent-foreground gap-2">
@@ -284,9 +316,21 @@ const Quotations = () => {
       <Card className="border-border shadow-sm">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
+            {filteredQuotations.length > 0 && (
+              <div className="flex items-center gap-2 px-6 py-4 border-b border-border">
+                <Checkbox
+                  checked={selectedQuotations.length === filteredQuotations.length}
+                  onCheckedChange={toggleSelectAll}
+                />
+                <span className="text-sm text-muted-foreground">
+                  Select All ({filteredQuotations.length})
+                </span>
+              </div>
+            )}
             <table className="w-full">
               <thead>
                 <tr className="border-b border-border bg-muted/50">
+                  <th className="w-12"></th>
                   <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">Quote #</th>
                   <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">Client</th>
                   <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">Project</th>
@@ -299,6 +343,12 @@ const Quotations = () => {
               <tbody>
                 {filteredQuotations.map((quote, index) => (
                   <tr key={quote.id} className={`border-b border-border hover:bg-muted/50 transition-colors ${index % 2 === 0 ? 'bg-background' : 'bg-muted/20'}`}>
+                    <td className="px-6">
+                      <Checkbox
+                        checked={selectedQuotations.includes(quote.id)}
+                        onCheckedChange={() => toggleSelectQuotation(quote.id)}
+                      />
+                    </td>
                     <td className="py-4 px-6">
                       <Link to={`/quotations/${quote.id}/print`} className="text-primary hover:underline font-mono text-sm font-medium">
                         {quote.quotation_number}
