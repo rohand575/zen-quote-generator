@@ -7,7 +7,8 @@ import {
   Package, 
   Menu, 
   X,
-  LogOut
+  LogOut,
+  FileCog
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { authService, AuthUser } from '@/lib/auth';
@@ -22,6 +23,7 @@ const navItems = [
   { icon: FileText, label: 'Quotations', path: '/quotations' },
   { icon: Users, label: 'Clients', path: '/clients' },
   { icon: Package, label: 'Items', path: '/items' },
+  { icon: FileCog, label: 'Templates', path: '/templates' },
 ];
 
 export const AppShell = ({ children }: AppShellProps) => {

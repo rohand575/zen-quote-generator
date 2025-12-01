@@ -11,6 +11,7 @@ import Clients from "./pages/Clients";
 import Items from "./pages/Items";
 import Quotations from "./pages/Quotations";
 import CreateQuotation from "./pages/CreateQuotation";
+import Templates from "./pages/Templates";
 import QuotationPrint from "./pages/QuotationPrint";
 import NotFound from "./pages/NotFound";
 
@@ -70,6 +71,13 @@ const App = () => (
             <ProtectedRoute>
               <AppShell>
                 <QuotationPrint />
+              </AppShell>
+            </ProtectedRoute>
+          } />
+          <Route path="/templates" element={
+            <ProtectedRoute>
+              <AppShell>
+                <Templates />
               </AppShell>
             </ProtectedRoute>
           } />

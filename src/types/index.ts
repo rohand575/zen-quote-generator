@@ -56,3 +56,14 @@ export interface Quotation {
   created_at: string;
   updated_at: string;
 }
+
+export interface Template {
+  id: string;
+  name: string;
+  description?: string;
+  line_items: QuotationLineItem[];
+  notes?: string;
+  tax_rate: number;
+  created_at: string;
+  updated_at: string;
+}

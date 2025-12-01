@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Plus, Trash2, ArrowLeft } from 'lucide-react';
+import { Plus, Trash2, ArrowLeft, FileText } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { quotationsApi, clientsApi, itemsApi } from '@/lib/api';
+import { quotationsApi, clientsApi, itemsApi, templatesApi } from '@/lib/api';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { QuotationLineItem } from '@/types';
 import { toast } from '@/hooks/use-toast';
 
@@ -37,6 +38,11 @@ const CreateQuotation = () => {
   const { data: items = [] } = useQuery({
     queryKey: ['items'],
     queryFn: itemsApi.getAll,
+  });
+
+  const { data: templates = [] } = useQuery({
+    queryKey: ['templates'],
+    queryFn: templatesApi.getAll,
   });
 
   const { data: quotation } = useQuery({
@@ -121,6 +127,16 @@ const CreateQuotation = () => {
     if (lineItems.length > 1) {
       setLineItems(lineItems.filter((_, i) => i !== index));
     }
+  };
+
+  const loadTemplate = (template: any) => {
+    setLineItems(template.line_items);
+    setTaxRate(template.tax_rate.toString());
+    if (template.notes) setNotes(template.notes);
+    toast({
+      title: 'Template loaded',
+      description: `"${template.name}" has been applied`,
+    });
   };
 
   const calculateTotals = () => {
@@ -281,10 +297,51 @@ const CreateQuotation = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Line Items</CardTitle>
-            <Button type="button" onClick={addLineItem} size="sm" className="gap-2">
-              <Plus className="h-4 w-4" />
-              Add Item
-            </Button>
+            <div className="flex gap-2">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button type="button" variant="outline" size="sm" className="gap-2">
+                    <FileText className="h-4 w-4" />
+                    Load Template
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Choose Template</DialogTitle>
+                    <DialogDescription>
+                      Select a template to populate line items
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-2">
+                    {templates.map((template) => (
+                      <button
+                        key={template.id}
+                        type="button"
+                        onClick={() => loadTemplate(template)}
+                        className="w-full text-left p-3 rounded-lg border hover:border-primary hover:bg-accent/50 transition-colors"
+                      >
+                        <div className="font-medium">{template.name}</div>
+                        {template.description && (
+                          <div className="text-sm text-muted-foreground">{template.description}</div>
+                        )}
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {Array.isArray(template.line_items) ? template.line_items.length : 0} items • {template.tax_rate}% tax
+                        </div>
+                      </button>
+                    ))}
+                    {templates.length === 0 && (
+                      <p className="text-center text-muted-foreground py-8">
+                        No templates available. Create one from the Templates page.
+                      </p>
+                    )}
+                  </div>
+                </DialogContent>
+              </Dialog>
+              <Button type="button" onClick={addLineItem} size="sm" className="gap-2">
+                <Plus className="h-4 w-4" />
+                Add Item
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
