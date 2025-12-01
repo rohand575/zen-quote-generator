@@ -145,6 +145,39 @@ export type Database = {
           },
         ]
       }
+      templates: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          line_items: Json
+          name: string
+          notes: string | null
+          tax_rate: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          line_items?: Json
+          name: string
+          notes?: string | null
+          tax_rate?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          line_items?: Json
+          name?: string
+          notes?: string | null
+          tax_rate?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

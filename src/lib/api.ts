@@ -191,3 +191,59 @@ export const quotationsApi = {
     if (error) throw error;
   },
 };
+
+// Templates API
+export const templatesApi = {
+  getAll: async () => {
+    const { data, error } = await supabase
+      .from('templates')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
+  },
+
+  getById: async (id: string) => {
+    const { data, error } = await supabase
+      .from('templates')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  create: async (template: any) => {
+    const { data, error } = await supabase
+      .from('templates')
+      .insert(template)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  update: async (id: string, template: any) => {
+    const { data, error } = await supabase
+      .from('templates')
+      .update(template)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  delete: async (id: string) => {
+    const { error } = await supabase
+      .from('templates')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  },
+};
