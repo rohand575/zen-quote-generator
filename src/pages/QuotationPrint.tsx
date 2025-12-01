@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { quotationsApi } from '@/lib/api';
 import { QuotationLineItem } from '@/types';
 import { GoogleExportDialog } from '@/components/GoogleExportDialog';
+import { QuotationVersionHistory } from '@/components/QuotationVersionHistory';
 
 const QuotationPrint = () => {
   const { id } = useParams();
@@ -94,6 +95,10 @@ const QuotationPrint = () => {
           </div>
         </div>
         <div className="flex gap-2">
+          <QuotationVersionHistory 
+            quotationId={quotation.id}
+            quotationNumber={quotation.quotation_number}
+          />
           <GoogleExportDialog
             quotations={[quotation]}
             mode="single"

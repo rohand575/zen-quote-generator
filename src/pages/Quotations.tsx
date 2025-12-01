@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Search, Eye, Edit, Trash2, Filter, X } from 'lucide-react';
+import { Plus, Search, Eye, Edit, Trash2, Filter, X, History } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,7 @@ import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { GoogleExportDialog } from '@/components/GoogleExportDialog';
+import { QuotationVersionHistory } from '@/components/QuotationVersionHistory';
 
 const Quotations = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -363,6 +364,10 @@ const Quotations = () => {
                     <td className="py-4 px-6 text-right font-mono font-medium">{formatCurrency(quote.total)}</td>
                     <td className="py-4 px-6 text-right">
                       <div className="flex justify-end gap-1">
+                        <QuotationVersionHistory 
+                          quotationId={quote.id}
+                          quotationNumber={quote.quotation_number}
+                        />
                         <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent/10" asChild>
                           <Link to={`/quotations/${quote.id}/print`}>
                             <Eye className="h-4 w-4" />

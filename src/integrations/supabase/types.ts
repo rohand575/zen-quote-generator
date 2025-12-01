@@ -83,6 +83,41 @@ export type Database = {
         }
         Relationships: []
       }
+      quotation_versions: {
+        Row: {
+          created_at: string
+          id: string
+          notes: string | null
+          quotation_data: Json
+          quotation_id: string
+          version_number: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          quotation_data: Json
+          quotation_id: string
+          version_number: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notes?: string | null
+          quotation_data?: Json
+          quotation_id?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quotation_versions_quotation_id_fkey"
+            columns: ["quotation_id"]
+            isOneToOne: false
+            referencedRelation: "quotations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quotations: {
         Row: {
           client_id: string

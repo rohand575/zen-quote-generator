@@ -67,3 +67,12 @@ export interface Template {
   created_at: string;
   updated_at: string;
 }
+
+export interface QuotationVersion {
+  id: string;
+  quotation_id: string;
+  version_number: number;
+  quotation_data: any;
+  notes?: string;
+  created_at: string;
+}

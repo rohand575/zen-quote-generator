@@ -12,6 +12,7 @@ import { quotationsApi, clientsApi, itemsApi, templatesApi } from '@/lib/api';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { QuotationLineItem } from '@/types';
 import { toast } from '@/hooks/use-toast';
+import { QuotationVersionHistory } from '@/components/QuotationVersionHistory';
 
 const CreateQuotation = () => {
   const navigate = useNavigate();
@@ -193,18 +194,26 @@ const CreateQuotation = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/quotations')}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <div>
-          <h1 className="text-3xl font-heading font-bold text-foreground">
-            {isEditMode ? 'Edit Quotation' : 'New Quotation'}
-          </h1>
-          <p className="text-muted-foreground">
-            {isEditMode ? 'Update quotation details' : 'Create a new quotation for your client'}
-          </p>
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/quotations')}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-heading font-bold text-foreground">
+              {isEditMode ? 'Edit Quotation' : 'New Quotation'}
+            </h1>
+            <p className="text-muted-foreground">
+              {isEditMode ? 'Update quotation details' : 'Create a new quotation for your client'}
+            </p>
+          </div>
         </div>
+        {isEditMode && quotation && (
+          <QuotationVersionHistory 
+            quotationId={quotation.id}
+            quotationNumber={quotation.quotation_number}
+          />
+        )}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
