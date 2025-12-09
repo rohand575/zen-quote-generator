@@ -263,7 +263,7 @@ const QuotationPrint = () => {
           </section>
 
           {/* Line items */}
-          <section className="mb-6">
+          <section className="mb-6 break-inside-avoid-page">
             <div className="flex items-center justify-between mb-2">
               <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">
                 Quotation Summary
@@ -304,7 +304,7 @@ const QuotationPrint = () => {
                   {lineItems.map((item, index) => (
                     <tr
                       key={index}
-                      className="border-t border-slate-200 align-top"
+                      className="border-t border-slate-200 align-top break-inside-avoid"
                     >
                       <td className="px-2 md:px-3 py-2 text-right">
                         {index + 1}
@@ -336,7 +336,7 @@ const QuotationPrint = () => {
           </section>
 
           {/* Totals */}
-          <section className="mb-6 flex justify-end">
+          <section className="mb-6 flex justify-end break-inside-avoid">
             <div className="w-full max-w-xs text-xs md:text-sm">
               <div className="flex justify-between py-1 border-b border-slate-200">
                 <span className="text-slate-600">Subtotal</span>
@@ -363,7 +363,7 @@ const QuotationPrint = () => {
 
           {/* Notes */}
           {quotation.notes && (
-            <section className="mb-6">
+            <section className="mb-6 break-inside-avoid">
               <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500 mb-1">
                 Special Notes
               </p>
@@ -373,15 +373,15 @@ const QuotationPrint = () => {
             </section>
           )}
 
-          {/* Terms & Conditions */}
-          <section className="mb-8">
+          {/* Terms & Conditions - keep together on same page */}
+          <section className="mb-8 break-before-auto print:break-inside-avoid-page">
             <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500 mb-2">
               Terms &amp; Conditions
             </p>
             <div className="border border-slate-300 rounded-md p-3">
               <ol className="list-decimal pl-4 space-y-1 text-[11px] md:text-xs leading-relaxed text-slate-700">
                 {terms.map((term) => (
-                  <li key={term.id}>
+                  <li key={term.id} className="break-inside-avoid">
                     <span className="font-semibold">{term.title}: </span>
                     <span>{term.text}</span>
                   </li>
@@ -390,8 +390,8 @@ const QuotationPrint = () => {
             </div>
           </section>
 
-          {/* Footer */}
-          <footer className="flex flex-wrap justify-between items-end gap-4 text-[11px] md:text-xs text-slate-600">
+          {/* Footer - always keep together */}
+          <footer className="flex flex-wrap justify-between items-end gap-4 text-[11px] md:text-xs text-slate-600 break-inside-avoid print:break-inside-avoid-page">
             <div>
               <p>Thank you for the opportunity to submit this quotation.</p>
               <p className="mt-1">
