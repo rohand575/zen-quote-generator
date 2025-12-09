@@ -16,6 +16,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { GoogleExportDialog } from '@/components/GoogleExportDialog';
 import { QuotationVersionHistory } from '@/components/QuotationVersionHistory';
+import { QuotationVersionCompare } from '@/components/QuotationVersionCompare';
 
 const Quotations = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -364,6 +365,10 @@ const Quotations = () => {
                     <td className="py-4 px-6 text-right font-mono font-medium">{formatCurrency(quote.total)}</td>
                     <td className="py-4 px-6 text-right">
                       <div className="flex justify-end gap-1">
+                        <QuotationVersionCompare
+                          quotationId={quote.id}
+                          quotationNumber={quote.quotation_number}
+                        />
                         <QuotationVersionHistory 
                           quotationId={quote.id}
                           quotationNumber={quote.quotation_number}
