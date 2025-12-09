@@ -11,6 +11,9 @@ export interface LineItem {
 
 export interface QuotationLineItem {
   item_id: string;
+  name?: string;
+  description?: string;
+  notes?: string;
   quantity: number;
   unit_price: number;
   total: number;

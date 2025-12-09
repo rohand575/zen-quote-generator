@@ -10,6 +10,7 @@ import { quotationsApi } from '@/lib/api';
 import { QuotationLineItem } from '@/types';
 import { GoogleExportDialog } from '@/components/GoogleExportDialog';
 import { QuotationVersionHistory } from '@/components/QuotationVersionHistory';
+import type { Item } from '@/types';
 
 const QuotationPrint = () => {
   const { id } = useParams();
@@ -253,9 +254,9 @@ const QuotationPrint = () => {
                   {quotation.project_description}
                 </p>
               )}
-              {quotation.client?.gst_number && (
+              {quotation.client?.tax_id && (
                 <p className="mt-2 text-[12px] text-slate-600">
-                  Client GSTIN: {quotation.client.gst_number}
+                  Client GSTIN: {quotation.client.tax_id}
                 </p>
               )}
             </div>
