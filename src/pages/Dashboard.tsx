@@ -213,78 +213,78 @@ const Dashboard = () => {
 
       {/* Key Metrics */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="premium-card glass-card accent-glow group cursor-pointer hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-border/60">
-            <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+        <Card className="premium-card glass-card accent-glow luxury-border group cursor-pointer interactive-lift animate-fade-in" style={{animationDelay: '0.1s'}}>
+          <CardHeader className="flex flex-row items-center justify-between pb-3 border-b soft-divider">
+            <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
               Total Revenue
             </CardTitle>
-            <div className="p-2 rounded-lg bg-green-500/10 group-hover:bg-green-500/20 transition-colors">
-              <DollarSign className="h-5 w-5 text-green-600" />
+            <div className="p-3 rounded-xl bg-gradient-to-br from-green-500/20 to-green-600/10 group-hover:from-green-500/30 group-hover:to-green-600/20 transition-all duration-300 shadow-md">
+              <DollarSign className="h-5 w-5 text-green-600 group-hover:scale-110 transition-transform" />
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-4">
             <div className="text-3xl font-heading font-bold text-foreground mb-2">
               {formatCompactCurrency(analytics.totalRevenue)}
             </div>
-            <p className={`text-sm font-medium flex items-center gap-1 ${Number(analytics.revenueChange) >= 0 ? 'text-green-600' : 'text-destructive'}`}>
-              {Number(analytics.revenueChange) >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+            <p className={`text-sm font-semibold flex items-center gap-1.5 ${Number(analytics.revenueChange) >= 0 ? 'text-green-600' : 'text-destructive'}`}>
+              {Number(analytics.revenueChange) >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
               {analytics.revenueChange}% from last month
             </p>
           </CardContent>
         </Card>
 
-        <Card className="premium-card glass-card accent-glow group cursor-pointer hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-border/60">
-            <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+        <Card className="premium-card glass-card accent-glow luxury-border group cursor-pointer interactive-lift animate-fade-in" style={{animationDelay: '0.2s'}}>
+          <CardHeader className="flex flex-row items-center justify-between pb-3 border-b soft-divider">
+            <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
               Conversion Rate
             </CardTitle>
-            <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-              <CheckCircle className="h-5 w-5 text-primary" />
+            <div className="p-3 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 group-hover:from-primary/30 group-hover:to-primary/20 transition-all duration-300 shadow-md">
+              <CheckCircle className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-4">
             <div className="text-3xl font-heading font-bold text-foreground mb-2">
               {analytics.conversionRate}%
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground font-medium">
               {analytics.statusCounts['accepted'] || 0} of {quotations.length} accepted
             </p>
           </CardContent>
         </Card>
 
-        <Card className="premium-card glass-card accent-glow group cursor-pointer hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-border/60">
-            <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+        <Card className="premium-card glass-card accent-glow luxury-border group cursor-pointer interactive-lift animate-fade-in" style={{animationDelay: '0.3s'}}>
+          <CardHeader className="flex flex-row items-center justify-between pb-3 border-b soft-divider">
+            <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
               Avg. Quote Value
             </CardTitle>
-            <div className="p-2 rounded-lg bg-accent/10 group-hover:bg-accent/20 transition-colors">
-              <BarChart3 className="h-5 w-5 text-accent" />
+            <div className="p-3 rounded-xl bg-gradient-to-br from-accent/20 to-accent/10 group-hover:from-accent/30 group-hover:to-accent/20 transition-all duration-300 shadow-md">
+              <BarChart3 className="h-5 w-5 text-accent group-hover:scale-110 transition-transform" />
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-4">
             <div className="text-3xl font-heading font-bold text-foreground mb-2">
               {formatCompactCurrency(analytics.avgQuotationValue)}
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground font-medium">
               Per quotation average
             </p>
           </CardContent>
         </Card>
 
-        <Card className="premium-card glass-card accent-glow group cursor-pointer hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300">
-          <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-border/60">
-            <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+        <Card className="premium-card glass-card accent-glow luxury-border group cursor-pointer interactive-lift animate-fade-in" style={{animationDelay: '0.4s'}}>
+          <CardHeader className="flex flex-row items-center justify-between pb-3 border-b soft-divider">
+            <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
               Active Clients
             </CardTitle>
-            <div className="p-2 rounded-lg bg-[hsl(var(--accent))]/10 group-hover:bg-[hsl(var(--accent))]/20 transition-colors">
-              <Users className="h-5 w-5 text-accent" />
+            <div className="p-3 rounded-xl bg-gradient-to-br from-accent/20 to-accent/10 group-hover:from-accent/30 group-hover:to-accent/20 transition-all duration-300 shadow-md">
+              <Users className="h-5 w-5 text-accent group-hover:scale-110 transition-transform" />
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-4">
             <div className="text-3xl font-heading font-bold text-foreground mb-2">
               {clients.length}
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground font-medium">
               {itemsCount} catalog items
             </p>
           </CardContent>
@@ -294,10 +294,10 @@ const Dashboard = () => {
       {/* Charts Row */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Revenue Trend */}
-        <Card className="premium-card glass-card lg:col-span-2">
-          <CardHeader className="border-b soft-divider pb-4">
-            <CardTitle className="text-xl font-heading">Revenue Trend</CardTitle>
-            <CardDescription>Monthly revenue over the last 6 months</CardDescription>
+        <Card className="premium-card glass-card luxury-border lg:col-span-2 animate-slide-up" style={{animationDelay: '0.5s'}}>
+          <CardHeader className="border-b soft-divider pb-5">
+            <CardTitle className="text-2xl font-heading font-bold">Revenue Trend</CardTitle>
+            <CardDescription className="text-base">Monthly revenue over the last 6 months</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
             <ChartContainer config={chartConfig} className="h-[280px] w-full">
@@ -340,10 +340,10 @@ const Dashboard = () => {
         </Card>
 
         {/* Status Distribution */}
-        <Card className="premium-card glass-card">
-          <CardHeader className="border-b soft-divider pb-4">
-            <CardTitle className="text-xl font-heading">Status Distribution</CardTitle>
-            <CardDescription>Quotation status breakdown</CardDescription>
+        <Card className="premium-card glass-card luxury-border animate-slide-up" style={{animationDelay: '0.6s'}}>
+          <CardHeader className="border-b soft-divider pb-5">
+            <CardTitle className="text-2xl font-heading font-bold">Status Distribution</CardTitle>
+            <CardDescription className="text-base">Quotation status breakdown</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
             {statusPieData.length > 0 ? (
@@ -386,10 +386,10 @@ const Dashboard = () => {
       {/* Second Charts Row */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Quotation Volume */}
-        <Card className="premium-card glass-card">
-          <CardHeader className="border-b soft-divider pb-4">
-            <CardTitle className="text-xl font-heading">Quotation Volume</CardTitle>
-            <CardDescription>Monthly quotations created vs accepted</CardDescription>
+        <Card className="premium-card glass-card luxury-border animate-slide-up" style={{animationDelay: '0.7s'}}>
+          <CardHeader className="border-b soft-divider pb-5">
+            <CardTitle className="text-2xl font-heading font-bold">Quotation Volume</CardTitle>
+            <CardDescription className="text-base">Monthly quotations created vs accepted</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
             <ChartContainer config={chartConfig} className="h-[250px] w-full">
@@ -416,10 +416,10 @@ const Dashboard = () => {
         </Card>
 
         {/* Top Clients */}
-        <Card className="premium-card glass-card">
-          <CardHeader className="border-b soft-divider pb-4">
-            <CardTitle className="text-xl font-heading">Top Clients</CardTitle>
-            <CardDescription>Clients by accepted quotation revenue</CardDescription>
+        <Card className="premium-card glass-card luxury-border animate-slide-up" style={{animationDelay: '0.8s'}}>
+          <CardHeader className="border-b soft-divider pb-5">
+            <CardTitle className="text-2xl font-heading font-bold">Top Clients</CardTitle>
+            <CardDescription className="text-base">Clients by accepted quotation revenue</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
             {analytics.topClients.length > 0 ? (
@@ -459,15 +459,15 @@ const Dashboard = () => {
       </div>
 
       {/* Recent Quotations */}
-      <Card className="premium-card glass-card accent-glow animate-slide-up">
+      <Card className="premium-card glass-card accent-glow luxury-border animate-slide-up" style={{animationDelay: '0.9s'}}>
         <CardHeader className="border-b soft-divider pb-6">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-2xl font-heading">Recent Quotations</CardTitle>
-              <CardDescription className="mt-1">Latest quotation activity</CardDescription>
+              <CardTitle className="text-2xl font-heading font-bold">Recent Quotations</CardTitle>
+              <CardDescription className="mt-2 text-base">Latest quotation activity</CardDescription>
             </div>
             <Link to="/quotations">
-              <Button variant="outline" size="sm" className="hover:bg-primary hover:text-primary-foreground transition-all">View All</Button>
+              <Button variant="outline" size="sm" className="hover:bg-primary hover:text-primary-foreground transition-all duration-300 shadow-sm hover:shadow-md">View All</Button>
             </Link>
           </div>
         </CardHeader>

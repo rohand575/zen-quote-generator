@@ -146,18 +146,31 @@ All colors MUST be HSL.
 }
 
 @layer utilities {
+  /* Enhanced Animations */
   .animate-fade-in {
-    animation: fadeIn 0.5s ease-out;
+    animation: fadeIn 0.7s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  
+
   .animate-slide-up {
-    animation: slideUp 0.6s ease-out;
+    animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  
+
   .animate-scale-in {
-    animation: scaleIn 0.4s ease-out;
+    animation: scaleIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
-  
+
+  .animate-shimmer {
+    animation: shimmer 2.5s ease-in-out infinite;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-glow-pulse {
+    animation: glowPulse 3s ease-in-out infinite;
+  }
+
   @keyframes fadeIn {
     from {
       opacity: 0;
@@ -168,55 +181,206 @@ All colors MUST be HSL.
       transform: translateY(0);
     }
   }
-  
+
   @keyframes slideUp {
     from {
       opacity: 0;
-      transform: translateY(30px);
+      transform: translateY(40px);
     }
     to {
       opacity: 1;
       transform: translateY(0);
     }
   }
-  
+
   @keyframes scaleIn {
     from {
       opacity: 0;
-      transform: scale(0.95);
+      transform: scale(0.92);
     }
     to {
       opacity: 1;
       transform: scale(1);
     }
   }
-  
-  .premium-card {
-    @apply bg-card rounded-xl border border-border shadow-lg hover:shadow-xl transition-all duration-300;
+
+  @keyframes shimmer {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
   }
 
-  /* Premium surfaces for the dark Zen look */
-  .glass-card {
-    background: linear-gradient(150deg, hsl(var(--card) / 0.9), hsl(var(--background) / 0.85));
-    border: 1px solid hsl(var(--border));
-    box-shadow: var(--shadow-xl), var(--shadow-elegant);
-    backdrop-filter: blur(14px);
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
   }
-  
+
+  @keyframes glowPulse {
+    0%, 100% {
+      box-shadow: 0 0 20px hsl(var(--accent) / 0.3);
+    }
+    50% {
+      box-shadow: 0 0 40px hsl(var(--accent) / 0.5);
+    }
+  }
+
+  /* Premium Card Styles */
+  .premium-card {
+    @apply bg-card rounded-2xl border border-border/50 shadow-lg hover:shadow-2xl transition-all duration-500;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .premium-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+    transition: left 0.7s ease;
+  }
+
+  .premium-card:hover::before {
+    left: 100%;
+  }
+
+  /* Glass morphism effects */
+  .glass-card {
+    background: linear-gradient(150deg, hsl(var(--card) / 0.95), hsl(var(--background) / 0.9));
+    border: 1px solid hsl(var(--border) / 0.4);
+    box-shadow:
+      0 8px 32px 0 rgba(31, 38, 135, 0.15),
+      0 20px 40px -20px hsl(var(--primary) / 0.2),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+
   .accent-glow {
-    box-shadow: 0 0 0 1px hsl(var(--border)), 0 15px 35px -15px hsl(var(--accent) / 0.55);
+    box-shadow:
+      0 0 0 1px hsl(var(--border) / 0.3),
+      0 20px 50px -15px hsl(var(--accent) / 0.4),
+      0 10px 30px -10px hsl(var(--primary) / 0.3);
+    position: relative;
+  }
+
+  .accent-glow::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, hsl(var(--accent) / 0.2), hsl(var(--primary) / 0.2));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .accent-glow:hover::after {
+    opacity: 1;
   }
 
   .soft-divider {
-    border-color: hsl(var(--border) / 0.65);
+    border-color: hsl(var(--border) / 0.5);
   }
-  
+
+  /* Premium Gradients */
   .premium-gradient-bg {
-    background: var(--gradient-primary);
+    background: linear-gradient(135deg, hsl(var(--navy)) 0%, hsl(var(--navy-dark)) 50%, hsl(var(--navy)) 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 8s ease infinite;
   }
-  
+
   .premium-gradient-accent {
-    background: var(--gradient-accent);
+    background: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--orange-glow)) 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 6s ease infinite;
+  }
+
+  @keyframes gradientShift {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  /* Luxury Text Effects */
+  .text-gradient {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .text-shimmer {
+    background: linear-gradient(90deg,
+      hsl(var(--foreground)) 0%,
+      hsl(var(--accent)) 50%,
+      hsl(var(--foreground)) 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmerText 3s linear infinite;
+  }
+
+  @keyframes shimmerText {
+    to {
+      background-position: 200% center;
+    }
+  }
+
+  /* Premium Interactive Elements */
+  .interactive-lift {
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .interactive-lift:hover {
+    transform: translateY(-4px) scale(1.02);
+  }
+
+  .interactive-lift:active {
+    transform: translateY(-2px) scale(0.99);
+  }
+
+  /* Luxury Border Effect */
+  .luxury-border {
+    position: relative;
+    border: 1px solid hsl(var(--border) / 0.3);
+  }
+
+  .luxury-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: linear-gradient(135deg, hsl(var(--accent) / 0.5), hsl(var(--primary) / 0.5), hsl(var(--accent) / 0.5));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .luxury-border:hover::before {
+    opacity: 1;
   }
 }
 

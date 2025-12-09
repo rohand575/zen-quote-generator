@@ -50,34 +50,35 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[hsl(var(--navy-dark))] via-[hsl(var(--background))] to-[hsl(var(--navy))] flex items-center justify-center p-4 relative overflow-hidden text-foreground">
-      {/* Animated background elements */}
+      {/* Enhanced Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-[hsl(var(--navy-light))]/15 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-[hsl(var(--navy))]/18 rounded-full blur-3xl"></div>
+        <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-[hsl(var(--navy-light))]/20 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-[hsl(var(--navy))]/25 rounded-full blur-3xl animate-float" style={{animationDelay: '2s'}}></div>
+        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-[hsl(var(--accent))]/10 rounded-full blur-3xl animate-float" style={{animationDelay: '4s'}}></div>
       </div>
-      
+
       <div className="w-full max-w-md animate-fade-in relative z-10">
         {/* Logo Section */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl overflow-hidden border border-white/20 bg-white/5 backdrop-blur shadow-2xl hover:scale-105 transition-transform duration-300">
-            <img src="/zen-logo.png" alt="Zen Engineering logo" className="w-full h-full object-contain" />
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center w-28 h-28 rounded-3xl overflow-hidden border-2 border-white/30 bg-white/10 backdrop-blur-xl shadow-2xl hover:scale-110 transition-all duration-500 animate-glow-pulse mb-6">
+            <img src="/zen-logo.png" alt="Zen Engineering logo" className="w-full h-full object-contain p-2" />
           </div>
-          <h1 className="text-5xl font-heading font-bold text-white mb-3 tracking-tight">Zen Engineering</h1>
-          <p className="text-primary-foreground/90 text-lg font-medium">Quotation Management System</p>
+          <h1 className="text-5xl font-heading font-bold text-white mb-4 tracking-tight text-shimmer">Zen Engineering</h1>
+          <p className="text-primary-foreground/95 text-xl font-semibold">Quotation Management System</p>
         </div>
 
         {/* Login Card */}
-        <Card className="border border-border/70 shadow-2xl backdrop-blur-md bg-card/90 animate-scale-in">
-          <CardHeader className="space-y-3 pb-6">
-            <CardTitle className="text-3xl font-heading text-foreground">Admin Login</CardTitle>
-            <CardDescription className="text-base text-muted-foreground">
+        <Card className="premium-card glass-card luxury-border shadow-2xl animate-scale-in">
+          <CardHeader className="space-y-4 pb-8">
+            <CardTitle className="text-3xl font-heading font-bold text-foreground">Admin Login</CardTitle>
+            <CardDescription className="text-base text-muted-foreground font-medium">
               Sign in to manage quotations and clients
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSignIn} className="space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
+            <form onSubmit={handleSignIn} className="space-y-6">
+              <div className="space-y-3">
+                <Label htmlFor="email" className="text-sm font-semibold text-foreground">Email Address</Label>
                 <Input
                   id="email"
                   type="email"
@@ -85,12 +86,12 @@ const Login = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="h-12 border-2 border-border/70 bg-background/80 focus:border-accent focus:ring-0 transition-colors"
+                  className="h-12 border-2 border-border/60 bg-background/90 focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all duration-300 rounded-xl font-medium"
                   disabled={isLoading}
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium">Password</Label>
+              <div className="space-y-3">
+                <Label htmlFor="password" className="text-sm font-semibold text-foreground">Password</Label>
                 <Input
                   id="password"
                   type="password"
@@ -98,13 +99,13 @@ const Login = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="h-12 border-2 border-border/70 bg-background/80 focus:border-accent focus:ring-0 transition-colors"
+                  className="h-12 border-2 border-border/60 bg-background/90 focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all duration-300 rounded-xl font-medium"
                   disabled={isLoading}
                 />
               </div>
-              <Button 
-                type="submit" 
-                className="w-full h-12 premium-gradient-bg text-primary-foreground font-semibold text-base shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300"
+              <Button
+                type="submit"
+                className="w-full h-13 premium-gradient-accent text-accent-foreground font-bold text-base shadow-xl hover:shadow-2xl interactive-lift rounded-xl"
                 disabled={isLoading}
               >
                 {isLoading ? 'Signing in...' : 'Sign In'}
@@ -114,8 +115,8 @@ const Login = () => {
         </Card>
 
         {/* Footer */}
-        <p className="text-center text-muted-foreground text-sm mt-10 font-medium">
-          (c) 2025 Zen Engineering. All rights reserved.
+        <p className="text-center text-primary-foreground/80 text-sm mt-12 font-semibold">
+          © 2025 Zen Engineering. All rights reserved.
         </p>
       </div>
     </div>
