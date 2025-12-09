@@ -1,19 +1,25 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Search, Edit, Trash2 } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Check, ChevronsUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { toast } from 'sonner';
 import { itemsApi } from '@/lib/api';
+import { cn } from '@/lib/utils';
 
 const Items = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [categorySearch, setCategorySearch] = useState('');
   const queryClient = useQueryClient();
   
   const { data: items = [], isLoading } = useQuery({
@@ -57,7 +63,20 @@ const Items = () => {
     },
   });
 
-  const filteredItems = items.filter((item: any) => 
+  // Extract unique categories from existing items
+  const defaultCategories = ['Acoustics', 'Flooring', 'Ceiling', 'Paint & Coating'];
+  const existingCategories = Array.from(
+    new Set(
+      items
+        .map((item: any) => item.category)
+        .filter((cat: string) => cat && cat.trim() !== '')
+    )
+  ).sort();
+
+  // Combine default categories with existing ones
+  const allCategories = Array.from(new Set([...defaultCategories, ...existingCategories]));
+
+  const filteredItems = items.filter((item: any) =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (item.category && item.category.toLowerCase().includes(searchTerm.toLowerCase()))
   );
@@ -70,7 +89,7 @@ const Items = () => {
       description: formData.get('description') as string,
       unit: formData.get('unit') as string,
       unit_price: parseFloat(formData.get('unit_price') as string),
-      category: formData.get('category') as string,
+      category: selectedCategory || categorySearch, // Use selected category or typed value
     };
 
     if (editingItem) {
@@ -82,6 +101,8 @@ const Items = () => {
 
   const handleEdit = (item: any) => {
     setEditingItem(item);
+    setSelectedCategory(item.category || '');
+    setCategorySearch('');
     setIsDialogOpen(true);
   };
 
@@ -95,6 +116,9 @@ const Items = () => {
     setIsDialogOpen(open);
     if (!open) {
       setEditingItem(null);
+      setSelectedCategory('');
+      setCategorySearch('');
+      setCategoryOpen(false);
     }
   };
 
@@ -156,7 +180,68 @@ const Items = () => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="category">Category</Label>
-                    <Input id="category" name="category" placeholder="Motors" defaultValue={editingItem?.category} />
+                    <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={categoryOpen}
+                          className="w-full justify-between"
+                        >
+                          {selectedCategory || categorySearch || "Select category..."}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[200px] p-0">
+                        <Command
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && categorySearch && !allCategories.some(cat => cat.toLowerCase() === categorySearch.toLowerCase())) {
+                              e.preventDefault();
+                              setSelectedCategory(categorySearch);
+                              setCategoryOpen(false);
+                            }
+                          }}
+                        >
+                          <CommandInput
+                            placeholder="Search or type new..."
+                            value={categorySearch}
+                            onValueChange={setCategorySearch}
+                          />
+                          <CommandList>
+                            <CommandEmpty>
+                              <div className="py-2 px-2 text-sm text-muted-foreground">
+                                {categorySearch ? `Press Enter to add "${categorySearch}"` : 'No categories found'}
+                              </div>
+                            </CommandEmpty>
+                            <CommandGroup>
+                              {allCategories
+                                .filter((category) =>
+                                  category.toLowerCase().includes(categorySearch.toLowerCase())
+                                )
+                                .map((category) => (
+                                  <CommandItem
+                                    key={category}
+                                    value={category}
+                                    onSelect={(currentValue) => {
+                                      setSelectedCategory(currentValue === selectedCategory ? '' : currentValue);
+                                      setCategorySearch('');
+                                      setCategoryOpen(false);
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        selectedCategory === category ? "opacity-100" : "opacity-0"
+                                      )}
+                                    />
+                                    {category}
+                                  </CommandItem>
+                                ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 </div>
               </div>
