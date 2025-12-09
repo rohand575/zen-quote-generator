@@ -255,9 +255,6 @@ export const generateQuotationPdf = (quotation: QuotationData): jsPDF => {
     // Draw row border
     drawRect(tableX, y, contentWidth, itemRowHeight);
 
-    const itemTax = (item.total * taxRate) / 100;
-    const itemTotal = item.total + itemTax;
-
     colX = tableX;
 
     // Sr. No
@@ -305,13 +302,13 @@ export const generateQuotationPdf = (quotation: QuotationData): jsPDF => {
     colX += colWidths.taxPercent;
 
     // Tax Amount
-    pdf.text(formatCurrencyShort(itemTax), colX + colWidths.taxAmount - 2, y + 5, { align: 'right' });
+    pdf.text('-', colX + colWidths.taxAmount / 2, y + 5, { align: 'center' });
     drawLine(colX + colWidths.taxAmount, y, colX + colWidths.taxAmount, y + itemRowHeight);
     colX += colWidths.taxAmount;
 
     // Amount
     pdf.setFont('helvetica', 'bold');
-    pdf.text(formatCurrencyShort(itemTotal), colX + colWidths.amount - 2, y + 5, { align: 'right' });
+    pdf.text(formatCurrencyShort(item.total), colX + colWidths.amount - 2, y + 5, { align: 'right' });
     pdf.setFont('helvetica', 'normal');
 
     y += itemRowHeight;

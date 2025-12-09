@@ -83,11 +83,18 @@ const QuotationPrint = () => {
       {/* Preview */}
       <div className="mx-auto max-w-4xl border border-slate-200 bg-white text-slate-900 shadow-sm rounded-lg p-8">
         {/* Header */}
-        <div className="text-center border-b pb-4 mb-6">
-          <h1 className="text-xl font-bold">{COMPANY.name}</h1>
-          <p className="text-xs text-slate-600 mt-1">{COMPANY.address}</p>
-          <p className="text-xs text-slate-600">Contact No: {COMPANY.phone} | Email: {COMPANY.email}</p>
-          <p className="text-xs font-semibold mt-2">GSTIN: {COMPANY.gstin}</p>
+        <div className="border-b pb-4 mb-6">
+          <div className="flex items-center gap-4 mb-3">
+            <img src="/zen-logo.png" alt="Zen Engineering Solutions" className="h-16 w-16 object-contain" />
+            <div>
+              <h1 className="text-xl font-bold">{COMPANY.name}</h1>
+              <p className="text-xs text-slate-600 mt-0.5">{COMPANY.address}</p>
+            </div>
+          </div>
+          <div className="text-left">
+            <p className="text-xs text-slate-600">Contact No: {COMPANY.phone} | Email: {COMPANY.email}</p>
+            <p className="text-xs font-semibold mt-1">GSTIN: {COMPANY.gstin}</p>
+          </div>
         </div>
 
         {/* Title */}
@@ -129,8 +136,6 @@ const QuotationPrint = () => {
           </thead>
           <tbody>
             {lineItems.map((item, index) => {
-              const itemTax = (item.total * (quotation.tax_rate || 0)) / 100;
-              const itemTotal = item.total + itemTax;
               return (
                 <tr key={index}>
                   <td className="border px-2 py-2 text-center">{index + 1}</td>
@@ -142,8 +147,8 @@ const QuotationPrint = () => {
                   <td className="border px-2 py-2 text-center">{item.quantity}</td>
                   <td className="border px-2 py-2 text-right">{formatCurrencyShort(item.unit_price)}</td>
                   <td className="border px-2 py-2 text-center">{quotation.tax_rate}%</td>
-                  <td className="border px-2 py-2 text-right">{formatCurrencyShort(itemTax)}</td>
-                  <td className="border px-2 py-2 text-right font-semibold">{formatCurrencyShort(itemTotal)}</td>
+                  <td className="border px-2 py-2 text-right">-</td>
+                  <td className="border px-2 py-2 text-right font-semibold">{formatCurrencyShort(item.total)}</td>
                 </tr>
               );
             })}
