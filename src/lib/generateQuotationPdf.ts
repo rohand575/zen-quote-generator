@@ -210,7 +210,6 @@ export const generateQuotationPdf = async (quotation: QuotationData): Promise<js
     pdf.text(`${info.label}`, margin, infoY + 3.5);
     pdf.setFont('helvetica', 'normal');
     pdf.text(`: ${info.value}`, margin + 28, infoY + 3.5);
-    drawLine(margin, infoY + rowHeight, margin + leftColWidth - 5, infoY + rowHeight);
     infoY += rowHeight;
   });
 
@@ -229,7 +228,6 @@ export const generateQuotationPdf = async (quotation: QuotationData): Promise<js
     pdf.text(`${info.label}`, rightColX, infoY + 3.5);
     pdf.setFont('helvetica', 'normal');
     pdf.text(`: ${info.value}`, rightColX + 25, infoY + 3.5);
-    drawLine(rightColX, infoY + rowHeight, margin + contentWidth, infoY + rowHeight);
     infoY += rowHeight;
   });
 
