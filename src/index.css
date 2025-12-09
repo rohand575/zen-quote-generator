@@ -219,3 +219,39 @@ All colors MUST be HSL.
     background: var(--gradient-accent);
   }
 }
+
+/* Print styles for PDF generation */
+@media print {
+  .break-inside-avoid {
+    break-inside: avoid !important;
+  }
+  
+  .break-inside-avoid-page {
+    break-inside: avoid-page !important;
+  }
+  
+  .break-before-auto {
+    break-before: auto !important;
+  }
+  
+  section {
+    break-inside: avoid;
+  }
+  
+  table {
+    break-inside: auto;
+  }
+  
+  tr {
+    break-inside: avoid;
+    break-after: auto;
+  }
+  
+  thead {
+    display: table-header-group;
+  }
+  
+  tfoot {
+    display: table-footer-group;
+  }
+}
