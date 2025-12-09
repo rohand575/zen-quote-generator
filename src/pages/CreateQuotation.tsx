@@ -30,6 +30,7 @@ const CreateQuotation = () => {
   const [lineItems, setLineItems] = useState<QuotationLineItem[]>([
     { item_id: '', quantity: 1, unit_price: 0, total: 0 }
   ]);
+  const [selectedCategories, setSelectedCategories] = useState<{ [key: number]: string }>({});
 
   const { data: clients = [] } = useQuery({
     queryKey: ['clients'],
@@ -40,6 +41,15 @@ const CreateQuotation = () => {
     queryKey: ['items'],
     queryFn: itemsApi.getAll,
   });
+
+  // Extract unique categories from items
+  const categories = Array.from(
+    new Set(
+      items
+        .map((item: any) => item.category)
+        .filter((cat: string) => cat && cat.trim() !== '')
+    )
+  ).sort();
 
   const { data: templates = [] } = useQuery({
     queryKey: ['templates'],
@@ -145,7 +155,42 @@ const CreateQuotation = () => {
   const removeLineItem = (index: number) => {
     if (lineItems.length > 1) {
       setLineItems(lineItems.filter((_, i) => i !== index));
+      // Clean up category selection for this line item
+      const newCategories = { ...selectedCategories };
+      delete newCategories[index];
+      // Reindex remaining categories
+      const reindexed: { [key: number]: string } = {};
+      Object.keys(newCategories).forEach((key) => {
+        const numKey = parseInt(key);
+        if (numKey > index) {
+          reindexed[numKey - 1] = newCategories[numKey];
+        } else {
+          reindexed[numKey] = newCategories[numKey];
+        }
+      });
+      setSelectedCategories(reindexed);
     }
+  };
+
+  const handleCategoryChange = (index: number, category: string) => {
+    setSelectedCategories({ ...selectedCategories, [index]: category });
+    // Clear the selected item when category changes
+    const newItems = [...lineItems];
+    newItems[index].item_id = '';
+    newItems[index].name = '';
+    newItems[index].description = '';
+    newItems[index].unit_price = 0;
+    newItems[index].total = 0;
+    setLineItems(newItems);
+  };
+
+  // Filter items based on selected category for a specific line item
+  const getFilteredItems = (index: number) => {
+    const selectedCategory = selectedCategories[index];
+    if (!selectedCategory || selectedCategory === 'all') {
+      return items;
+    }
+    return items.filter((item: any) => item.category === selectedCategory);
   };
 
   const loadTemplate = (template: any) => {
@@ -373,63 +418,85 @@ const CreateQuotation = () => {
           <CardContent>
             <div className="space-y-4">
               {lineItems.map((item, index) => (
-                <div key={index} className="flex gap-4 items-end border-b pb-4 last:border-0">
-                  <div className="flex-1 space-y-2">
-                    <Label>Item *</Label>
-                    <Select
-                      value={item.item_id}
-                      onValueChange={(value) => handleItemChange(index, 'item_id', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select item" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {items.map(availableItem => (
-                          <SelectItem key={availableItem.id} value={availableItem.id}>
-                            {availableItem.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="w-24 space-y-2">
-                    <Label>Quantity</Label>
-                    <Input
-                      type="number"
-                      min="1"
-                      value={item.quantity}
-                      onChange={(e) => handleItemChange(index, 'quantity', parseInt(e.target.value) || 1)}
-                    />
-                  </div>
-
-                  <div className="w-32 space-y-2">
-                    <Label>Unit Price</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={item.unit_price}
-                      onChange={(e) => handleItemChange(index, 'unit_price', parseFloat(e.target.value) || 0)}
-                    />
-                  </div>
-
-                  <div className="w-32 space-y-2">
-                    <Label>Total</Label>
-                    <div className="h-10 flex items-center font-mono font-medium">
-                      {formatCurrency(item.total)}
+                <div key={index} className="border-b pb-4 last:border-0">
+                  <div className="flex gap-4 items-end">
+                    <div className="w-48 space-y-2">
+                      <Label>Category</Label>
+                      <Select
+                        value={selectedCategories[index] || 'all'}
+                        onValueChange={(value) => handleCategoryChange(index, value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="All categories" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All categories</SelectItem>
+                          {categories.map(category => (
+                            <SelectItem key={category} value={category}>
+                              {category}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
-                  </div>
 
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeLineItem(index)}
-                    disabled={lineItems.length === 1}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                    <div className="flex-1 space-y-2">
+                      <Label>Item *</Label>
+                      <Select
+                        value={item.item_id}
+                        onValueChange={(value) => handleItemChange(index, 'item_id', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select item" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {getFilteredItems(index).map(availableItem => (
+                            <SelectItem key={availableItem.id} value={availableItem.id}>
+                              {availableItem.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="w-24 space-y-2">
+                      <Label>Quantity</Label>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={item.quantity}
+                        onChange={(e) => handleItemChange(index, 'quantity', parseInt(e.target.value) || 1)}
+                      />
+                    </div>
+
+                    <div className="w-32 space-y-2">
+                      <Label>Unit Price</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={item.unit_price}
+                        onChange={(e) => handleItemChange(index, 'unit_price', parseFloat(e.target.value) || 0)}
+                      />
+                    </div>
+
+                    <div className="w-32 space-y-2">
+                      <Label>Total</Label>
+                      <div className="h-10 flex items-center font-mono font-medium">
+                        {formatCurrency(item.total)}
+                      </div>
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeLineItem(index)}
+                      disabled={lineItems.length === 1}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
