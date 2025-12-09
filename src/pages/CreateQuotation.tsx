@@ -53,7 +53,7 @@ const CreateQuotation = () => {
   });
 
   useEffect(() => {
-    if (quotation) {
+    if (quotation && items.length > 0) {
       setClientId(quotation.client_id);
       setProjectTitle(quotation.project_title);
       setProjectDescription(quotation.project_description || '');
@@ -61,9 +61,25 @@ const CreateQuotation = () => {
       setValidUntil(quotation.valid_until ? new Date(quotation.valid_until).toISOString().split('T')[0] : '');
       setNotes(quotation.notes || '');
       setStatus(quotation.status);
-      setLineItems(quotation.line_items as unknown as QuotationLineItem[]);
+
+      // Enrich line items with name and description if missing
+      const enrichedLineItems = (quotation.line_items as unknown as QuotationLineItem[]).map(lineItem => {
+        if (!lineItem.name && lineItem.item_id) {
+          const item = items.find(i => i.id === lineItem.item_id);
+          if (item) {
+            return {
+              ...lineItem,
+              name: item.name,
+              description: item.description,
+            };
+          }
+        }
+        return lineItem;
+      });
+
+      setLineItems(enrichedLineItems);
     }
-  }, [quotation]);
+  }, [quotation, items]);
 
   const createMutation = useMutation({
     mutationFn: quotationsApi.create,
@@ -106,17 +122,19 @@ const CreateQuotation = () => {
   const handleItemChange = (index: number, field: keyof QuotationLineItem, value: any) => {
     const newItems = [...lineItems];
     newItems[index] = { ...newItems[index], [field]: value };
-    
+
     if (field === 'item_id') {
       const selectedItem = items.find(item => item.id === value);
       if (selectedItem) {
+        newItems[index].name = selectedItem.name;
+        newItems[index].description = selectedItem.description;
         newItems[index].unit_price = Number(selectedItem.unit_price);
         newItems[index].total = Number(selectedItem.unit_price) * newItems[index].quantity;
       }
     } else if (field === 'quantity' || field === 'unit_price') {
       newItems[index].total = newItems[index].quantity * newItems[index].unit_price;
     }
-    
+
     setLineItems(newItems);
   };
 

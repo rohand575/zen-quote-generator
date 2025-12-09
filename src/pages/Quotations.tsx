@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { quotationsApi, clientsApi } from '@/lib/api';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -25,6 +26,8 @@ const Quotations = () => {
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
   const [selectedQuotations, setSelectedQuotations] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const queryClient = useQueryClient();
   
   const { data: quotations = [], isLoading } = useQuery({
@@ -57,24 +60,35 @@ const Quotations = () => {
 
   const filteredQuotations = quotations.filter(quote => {
     // Text search
-    const matchesSearch = 
+    const matchesSearch =
       quote.quotation_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
       quote.client?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       quote.project_title.toLowerCase().includes(searchTerm.toLowerCase());
-    
+
     // Status filter
     const matchesStatus = statusFilter === 'all' || quote.status === statusFilter;
-    
+
     // Client filter
     const matchesClient = clientFilter === 'all' || quote.client_id === clientFilter;
-    
+
     // Date range filter
     const quoteDate = new Date(quote.created_at);
     const matchesDateFrom = !dateFrom || quoteDate >= dateFrom;
     const matchesDateTo = !dateTo || quoteDate <= dateTo;
-    
+
     return matchesSearch && matchesStatus && matchesClient && matchesDateFrom && matchesDateTo;
   });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredQuotations.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedQuotations = filteredQuotations.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  const resetPagination = () => {
+    setCurrentPage(1);
+  };
 
   const selectedQuotationData = quotations.filter(q => selectedQuotations.includes(q.id));
 
@@ -98,6 +112,7 @@ const Quotations = () => {
     setDateFrom(undefined);
     setDateTo(undefined);
     setSearchTerm('');
+    setCurrentPage(1);
   };
 
   const hasActiveFilters = statusFilter !== 'all' || clientFilter !== 'all' || dateFrom || dateTo || searchTerm;
@@ -177,7 +192,10 @@ const Quotations = () => {
             <Input
               placeholder="Search by quotation number, client, or project..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
               className="pl-10 bg-card/80 border-border/60 focus:border-accent focus:ring-0"
             />
           </div>
@@ -190,7 +208,10 @@ const Quotations = () => {
             </div>
 
             {/* Status Filter */}
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={statusFilter} onValueChange={(value) => {
+              setStatusFilter(value);
+              setCurrentPage(1);
+            }}>
               <SelectTrigger className="w-[140px] bg-background">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
@@ -204,7 +225,10 @@ const Quotations = () => {
             </Select>
 
             {/* Client Filter */}
-            <Select value={clientFilter} onValueChange={setClientFilter}>
+            <Select value={clientFilter} onValueChange={(value) => {
+              setClientFilter(value);
+              setCurrentPage(1);
+            }}>
               <SelectTrigger className="w-[180px] bg-background">
                 <SelectValue placeholder="Client" />
               </SelectTrigger>
@@ -235,7 +259,10 @@ const Quotations = () => {
                 <Calendar
                   mode="single"
                   selected={dateFrom}
-                  onSelect={setDateFrom}
+                  onSelect={(date) => {
+                    setDateFrom(date);
+                    setCurrentPage(1);
+                  }}
                   initialFocus
                   className={cn("p-3 pointer-events-auto")}
                 />
@@ -259,7 +286,10 @@ const Quotations = () => {
                 <Calendar
                   mode="single"
                   selected={dateTo}
-                  onSelect={setDateTo}
+                  onSelect={(date) => {
+                    setDateTo(date);
+                    setCurrentPage(1);
+                  }}
                   initialFocus
                   className={cn("p-3 pointer-events-auto")}
                 />
@@ -343,7 +373,7 @@ const Quotations = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredQuotations.map((quote, index) => (
+                {paginatedQuotations.map((quote, index) => (
                   <tr key={quote.id} className={`border-b soft-divider hover:bg-[hsl(var(--card))/0.6] transition-colors ${index % 2 === 0 ? 'bg-background/60' : 'bg-muted/30'}`}>
                     <td className="px-6">
                       <Checkbox
@@ -398,6 +428,133 @@ const Quotations = () => {
               </tbody>
             </table>
           </div>
+
+          {/* Pagination Controls */}
+          {filteredQuotations.length > 0 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t soft-divider">
+              {/* Items per page selector */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Show</span>
+                <Select value={itemsPerPage.toString()} onValueChange={(value) => {
+                  setItemsPerPage(parseInt(value));
+                  setCurrentPage(1);
+                }}>
+                  <SelectTrigger className="w-[70px] bg-background">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="5">5</SelectItem>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="25">25</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                  </SelectContent>
+                </Select>
+                <span className="text-sm text-muted-foreground">
+                  entries (showing {startIndex + 1}-{Math.min(endIndex, filteredQuotations.length)} of {filteredQuotations.length})
+                </span>
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <Pagination>
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                        className={cn(
+                          "cursor-pointer",
+                          currentPage === 1 && "pointer-events-none opacity-50"
+                        )}
+                      />
+                    </PaginationItem>
+
+                    {/* First page */}
+                    {currentPage > 2 && (
+                      <>
+                        <PaginationItem>
+                          <PaginationLink
+                            onClick={() => setCurrentPage(1)}
+                            className="cursor-pointer"
+                          >
+                            1
+                          </PaginationLink>
+                        </PaginationItem>
+                        {currentPage > 3 && (
+                          <PaginationItem>
+                            <PaginationEllipsis />
+                          </PaginationItem>
+                        )}
+                      </>
+                    )}
+
+                    {/* Previous page */}
+                    {currentPage > 1 && (
+                      <PaginationItem>
+                        <PaginationLink
+                          onClick={() => setCurrentPage(currentPage - 1)}
+                          className="cursor-pointer"
+                        >
+                          {currentPage - 1}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )}
+
+                    {/* Current page */}
+                    <PaginationItem>
+                      <PaginationLink
+                        isActive
+                        className="cursor-default"
+                      >
+                        {currentPage}
+                      </PaginationLink>
+                    </PaginationItem>
+
+                    {/* Next page */}
+                    {currentPage < totalPages && (
+                      <PaginationItem>
+                        <PaginationLink
+                          onClick={() => setCurrentPage(currentPage + 1)}
+                          className="cursor-pointer"
+                        >
+                          {currentPage + 1}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )}
+
+                    {/* Last page */}
+                    {currentPage < totalPages - 1 && (
+                      <>
+                        {currentPage < totalPages - 2 && (
+                          <PaginationItem>
+                            <PaginationEllipsis />
+                          </PaginationItem>
+                        )}
+                        <PaginationItem>
+                          <PaginationLink
+                            onClick={() => setCurrentPage(totalPages)}
+                            className="cursor-pointer"
+                          >
+                            {totalPages}
+                          </PaginationLink>
+                        </PaginationItem>
+                      </>
+                    )}
+
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                        className={cn(
+                          "cursor-pointer",
+                          currentPage === totalPages && "pointer-events-none opacity-50"
+                        )}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
 

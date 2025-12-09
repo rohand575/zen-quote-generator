@@ -244,7 +244,7 @@ export const generateQuotationPdf = (quotation: QuotationData): jsPDF => {
 
   lineItems.forEach((item, index) => {
     // Calculate row height based on description length
-    const descText = item.description || item.name || `Item ${index + 1}`;
+    const descText = item.name || item.description || `Item ${index + 1}`;
     const descLines = pdf.splitTextToSize(descText, colWidths.description - 4);
     const notesLines = item.notes ? pdf.splitTextToSize(item.notes, colWidths.description - 4) : [];
     const totalLines = descLines.length + notesLines.length;

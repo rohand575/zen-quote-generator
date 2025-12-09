@@ -1,9 +1,9 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Download, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { quotationsApi } from '@/lib/api';
+import { quotationsApi, itemsApi } from '@/lib/api';
 import { QuotationLineItem } from '@/types';
 import { GoogleExportDialog } from '@/components/GoogleExportDialog';
 import { QuotationVersionHistory } from '@/components/QuotationVersionHistory';
@@ -18,6 +18,34 @@ const QuotationPrint = () => {
     queryKey: ['quotation', id],
     queryFn: () => quotationsApi.getById(id!),
   });
+
+  const { data: items = [] } = useQuery({
+    queryKey: ['items'],
+    queryFn: itemsApi.getAll,
+  });
+
+  // Enrich line items with item names from the items list
+  const enrichedLineItems = useMemo(() => {
+    if (!quotation) return [];
+    const lineItems = (quotation.line_items as unknown as QuotationLineItem[]) || [];
+    return lineItems.map(lineItem => {
+      // If name is already present, use it
+      if (lineItem.name) return lineItem;
+
+      // Otherwise, look up the item by item_id
+      if (lineItem.item_id) {
+        const item = items.find(i => i.id === lineItem.item_id);
+        if (item) {
+          return {
+            ...lineItem,
+            name: item.name,
+            description: lineItem.description || item.description,
+          };
+        }
+      }
+      return lineItem;
+    });
+  }, [quotation, items]);
 
   const handleDownload = async () => {
     if (!quotation) return;
@@ -51,8 +79,6 @@ const QuotationPrint = () => {
       </div>
     );
   }
-
-  const lineItems = (quotation.line_items as unknown as QuotationLineItem[]) || [];
 
   return (
     <div className="space-y-6">
@@ -135,12 +161,12 @@ const QuotationPrint = () => {
             </tr>
           </thead>
           <tbody>
-            {lineItems.map((item, index) => {
+            {enrichedLineItems.map((item, index) => {
               return (
                 <tr key={index}>
                   <td className="border px-2 py-2 text-center">{index + 1}</td>
                   <td className="border px-2 py-2">
-                    <p className="font-medium">{item.description || item.name || `Item ${index + 1}`}</p>
+                    <p className="font-medium">{item.name || item.description || `Item ${index + 1}`}</p>
                     {item.notes && <p className="text-xs text-slate-500 mt-1">{item.notes}</p>}
                   </td>
                   <td className="border px-2 py-2 text-center">Nos</td>
