@@ -17,9 +17,6 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-// 👇 add this (optional but clean)
-const basename =
-  import.meta.env.BASE_URL.replace(/\/$/, ""); // trims trailing "/"
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -27,7 +24,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       {/* 👇 IMPORTANT: add basename */}
-      <BrowserRouter basename={basename}>
+      <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route
