@@ -66,7 +66,7 @@ export const GoogleExportDialog = ({ quotations, trigger, mode = 'bulk' }: Googl
     try {
       for (const quotation of quotations) {
         // Generate PDF using the shared utility
-        const pdf = generateQuotationPdf(quotation);
+        const pdf = await generateQuotationPdf(quotation);
         const pdfData = pdf.output('dataurlstring');
 
         const { data, error } = await supabase.functions.invoke('export-to-drive', {

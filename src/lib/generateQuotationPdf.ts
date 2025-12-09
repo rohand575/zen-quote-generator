@@ -72,7 +72,29 @@ const formatDate = (date: string) => {
   });
 };
 
-export const generateQuotationPdf = (quotation: QuotationData): jsPDF => {
+// Helper function to load image as base64
+const loadImageAsBase64 = (url: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'Anonymous';
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image/png'));
+      } else {
+        reject(new Error('Failed to get canvas context'));
+      }
+    };
+    img.onerror = () => reject(new Error('Failed to load image'));
+    img.src = url;
+  });
+};
+
+export const generateQuotationPdf = async (quotation: QuotationData): Promise<jsPDF> => {
   const pdf = new jsPDF('p', 'mm', 'a4');
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
@@ -107,24 +129,54 @@ export const generateQuotationPdf = (quotation: QuotationData): jsPDF => {
     pdf.rect(x, yPos, w, h);
   };
 
-  // ===== HEADER SECTION =====
+  // ===== HEADER SECTION WITH LOGO =====
+  const logoSize = 20; // Logo size in mm
+  const logoX = margin;
+  const logoY = y;
+
+  // Add logo (load as base64)
+  try {
+    const logoBase64 = await loadImageAsBase64('/zen-logo.png');
+    pdf.addImage(logoBase64, 'PNG', logoX, logoY, logoSize, logoSize);
+  } catch (error) {
+    console.error('Failed to add logo to PDF', error);
+    // Continue without logo if it fails
+  }
+
+  // Company details next to logo (left-aligned)
+  const textX = logoX + logoSize + 4; // Start text 4mm after logo
+  let textY = logoY + 6; // Vertically center with logo
+
+  // Company Name
   pdf.setFontSize(16);
   pdf.setFont('helvetica', 'bold');
-  pdf.text(COMPANY.name, pageWidth / 2, y, { align: 'center' });
-  y += 5;
+  pdf.text(COMPANY.name, textX, textY);
 
-  pdf.setFontSize(8);
+  // Address
+  textY += 5;
+  pdf.setFontSize(7);
   pdf.setFont('helvetica', 'normal');
-  pdf.text(COMPANY.address, pageWidth / 2, y, { align: 'center' });
-  y += 4;
-  pdf.text(`Contact No: ${COMPANY.phone} | Email: ${COMPANY.email}`, pageWidth / 2, y, { align: 'center' });
-  y += 6;
+  const addressLines = pdf.splitTextToSize(COMPANY.address, contentWidth - logoSize - 4);
+  addressLines.forEach((line: string) => {
+    pdf.text(line, textX, textY);
+    textY += 2.8;
+  });
 
-  // Company identifiers row
-  pdf.setFontSize(8);
+  // Contact info
+  textY += 0.5;
+  pdf.text(`Contact No: ${COMPANY.phone} | Email: ${COMPANY.email}`, textX, textY);
+
+  // GSTIN
+  textY += 3.5;
   pdf.setFont('helvetica', 'bold');
-  pdf.text(`GSTIN: ${COMPANY.gstin}`, margin, y);
-  y += 8;
+  pdf.text(`GSTIN: ${COMPANY.gstin}`, textX, textY);
+
+  // Move y position down past the header
+  y = Math.max(logoY + logoSize, textY) + 3;
+
+  // Draw line separator below header
+  drawLine(margin, y, margin + contentWidth, y, 0.5);
+  y += 5;
 
   // ===== QUOTATION TITLE =====
   drawRect(margin, y, contentWidth, 8, true);

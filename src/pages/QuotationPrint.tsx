@@ -52,7 +52,7 @@ const QuotationPrint = () => {
     setIsGenerating(true);
 
     try {
-      const pdf = generateQuotationPdf(quotation);
+      const pdf = await generateQuotationPdf(quotation);
       pdf.save(`${quotation.quotation_number || 'quotation'}.pdf`);
     } catch (error) {
       console.error('Failed to generate PDF', error);
