@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Items to Catalog</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .instructions {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .credentials {
+            margin-bottom: 20px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        #results {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .item-result {
+            padding: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Add Items to Catalog</h1>
+
+        <div class="instructions">
+            <strong>Instructions:</strong>
+            <ol>
+                <li>Open your project's <code>.env</code> file</li>
+                <li>Copy the values for <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_PUBLISHABLE_KEY</code></li>
+                <li>Paste them below and click "Add Items"</li>
+            </ol>
+        </div>
+
+        <div class="credentials">
+            <label for="supabaseUrl"><strong>Supabase URL:</strong></label>
+            <input type="text" id="supabaseUrl" placeholder="https://xxxxxxxxxxxxx.supabase.co">
+
+            <label for="supabaseKey"><strong>Supabase Anon Key:</strong></label>
+            <input type="text" id="supabaseKey" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+        </div>
+
+        <button onclick="addItems()" id="addBtn">Add Items to Catalog</button>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const items = [
+            {
+                name: 'Carpet - Tufted Loop Pile',
+                description: `Manufacturing Process: Tufted Loop Pile
+Construction & Fiber: 100% Pp
+Total Height: 4 Mm
+Total Weight: 1500 Gsm
+Pile Weight: 425 Gsm
+Pile Height: 3.5 Mm
+Including carpet edge protector on step treads, made from stainless steel (Grade 304), L-shaped profile of size 25x10 mm, fixed mechanically with SS screws over carpet to protect exposed edges, including cutting, aligning, and finishing the edges neatly, all complete as per specifications and instructions given by The Architect's`,
+                unit: 'SQMTR',
+                unit_price: 947,
+                category: 'Flooring'
+            },
+            {
+                name: 'Paint - Acrylic Emulsion',
+                description: `Providing and applying acrylic emulsion to ceiling of approved brand and make in two coats of required shades to give even shades, over one coat of primer as per manufacturer's specifications, in all positions to old and new surfaces after thoroughly brushing the surfaces free from mortar droppings and other foreign matter, filling cracks with 'Crackseal' expansion filler, preparing the surface, all unevenness to be made in line& level with applying acrylic white cement based putty of approved make on entire surface,including filling up the undulations and sand papering, scaffolding, etc., complete.
+Location: ceiling
+Premium emulsion or equivalent
+make - Asian apacolite
+TOTAL CARRIED TO SUMMARY PAINT`,
+                unit: 'SQMTR',
+                unit_price: 0,
+                category: 'Paint & Coating'
+            },
+            {
+                name: 'Gypsum Ceiling - Suspended False Ceiling',
+                description: `Providing and fixing suspended false ceiling of proprirtary make Gyproc.
+Suspension system shall be Gypserra consist of following members.
+Ceiling Section 80 x 26 x 51 x 3660 mm (the main supporting section holding the board).
+Perimeter Section 20 x 28 x 30 x 3660 mm (for supports around wall, partitions etc).
+All hardware like dry wall screws, soffit clip, conneting clip, stainless steel 8mm rawl plug paper jointing adhesive tapes shall be of proprirtary make Gyproc.
+Board : Gypboard 12.5mm tapered edge 1829 X 1219MM.`,
+                unit: 'SQMTR',
+                unit_price: 1700,
+                category: 'Ceiling'
+            },
+            {
+                name: 'Modular Ceiling - Soft Fibre Acoustical',
+                description: `Providing and Fixing Soft Fibre Acoustical Suspended Ceiling System with Optra (Bevelled Tegular) Edge Tiles of size 15mm Exposed Grid backed with 1000 GSM FR Grade Synthetic wool 50 mm thick. NRC 0.9-1.0, Light Reflectance 785%, Colour White, Fire Performance UK Class 0/ Class 1 in module size of 600 x 600 x 15mm, suitable for Green Building application.`,
+                unit: 'SQMTR',
+                unit_price: 2180,
+                category: 'Ceiling'
+            },
+            {
+                name: 'Acoustical Panelling - Broadband Absorbing',
+                description: `Providing and fixing broadband absorbing panels, 1050mm x 650mm x 50mm, to be hanged using powder coated 2mm MS Z-clips on wall to maintain 100mm air gap. Panel core should be Rockwool of 48kg/m3 density and 50mm thickness. The panels should achieve NRC greater than 0.85 as per ASTM C423.`,
+                unit: 'SQMTR',
+                unit_price: 5124,
+                category: 'Acoustics'
+            },
+            {
+                name: 'PET/Non-woven Acoustical Board Paneling',
+                description: `Providing and installation of PET/Non-woven acoustical board paneling consisting 10mm/12mm thick approved make acoustical panels fixed on to 12mm thick ply backing as directed.
+Framework consisting of aluminum section. Framework to be secured to floor and nearest structural member using cleats, galvanized metal screws and wooden dowels.
+Including provisions to accommodate trap doors and openings. Including all M.E.P. services provisions.`,
+                unit: 'SQMTR',
+                unit_price: 5138,
+                category: 'Acoustics'
+            }
+        ];
+
+        async function addItems() {
+            const url = document.getElementById('supabaseUrl').value.trim();
+            const key = document.getElementById('supabaseKey').value.trim();
+            const resultsDiv = document.getElementById('results');
+            const btn = document.getElementById('addBtn');
+
+            if (!url || !key) {
+                resultsDiv.className = 'error';
+                resultsDiv.style.display = 'block';
+                resultsDiv.innerHTML = '❌ Please enter both Supabase URL and Key';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Adding items...';
+            resultsDiv.style.display = 'none';
+
+            try {
+                const { createClient } = supabase;
+                const client = createClient(url, key);
+
+                let results = '<strong>Results:</strong><br><br>';
+                let successCount = 0;
+                let errorCount = 0;
+
+                for (const item of items) {
+                    try {
+                        const { data, error } = await client
+                            .from('items')
+                            .insert(item)
+                            .select()
+                            .single();
+
+                        if (error) {
+                            results += `<div class="item-result">❌ ${item.name}: ${error.message}</div>`;
+                            errorCount++;
+                        } else {
+                            results += `<div class="item-result">✅ ${item.name}</div>`;
+                            successCount++;
+                        }
+                    } catch (err) {
+                        results += `<div class="item-result">❌ ${item.name}: ${err.message}</div>`;
+                        errorCount++;
+                    }
+                }
+
+                results += `<br><strong>Summary: ${successCount} added, ${errorCount} failed</strong>`;
+
+                resultsDiv.className = errorCount === 0 ? 'success' : 'error';
+                resultsDiv.style.display = 'block';
+                resultsDiv.innerHTML = results;
+
+            } catch (err) {
+                resultsDiv.className = 'error';
+                resultsDiv.style.display = 'block';
+                resultsDiv.innerHTML = `❌ Error: ${err.message}`;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Add Items to Catalog';
+            }
+        }
+    </script>
+</body>
+</html>

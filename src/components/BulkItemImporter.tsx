@@ -1,0 +1,190 @@
+import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { toast } from 'sonner';
+import { itemsApi } from '@/lib/api';
+import { Upload, Loader2 } from 'lucide-react';
+
+const itemsToImport = [
+  {
+    name: 'Carpet - Tufted Loop Pile',
+    description: `Manufacturing Process: Tufted Loop Pile
+Construction & Fiber: 100% Pp
+Total Height: 4 Mm
+Total Weight: 1500 Gsm
+Pile Weight: 425 Gsm
+Pile Height: 3.5 Mm
+Including carpet edge protector on step treads, made from stainless steel (Grade 304), L-shaped profile of size 25x10 mm, fixed mechanically with SS screws over carpet to protect exposed edges, including cutting, aligning, and finishing the edges neatly, all complete as per specifications and instructions given by The Architect's`,
+    unit: 'SQMTR',
+    unit_price: 947,
+    category: 'Flooring',
+  },
+  {
+    name: 'Paint - Acrylic Emulsion',
+    description: `Providing and applying acrylic emulsion to ceiling of approved brand and make in two coats of required shades to give even shades, over one coat of primer as per manufacturer's specifications, in all positions to old and new surfaces after thoroughly brushing the surfaces free from mortar droppings and other foreign matter, filling cracks with 'Crackseal' expansion filler, preparing the surface, all unevenness to be made in line& level with applying acrylic white cement based putty of approved make on entire surface,including filling up the undulations and sand papering, scaffolding, etc., complete.
+Location: ceiling
+Premium emulsion or equivalent
+make - Asian apacolite
+TOTAL CARRIED TO SUMMARY PAINT`,
+    unit: 'SQMTR',
+    unit_price: 0,
+    category: 'Paint & Coating',
+  },
+  {
+    name: 'Gypsum Ceiling - Suspended False Ceiling',
+    description: `Providing and fixing suspended false ceiling of proprirtary make Gyproc.
+Suspension system shall be Gypserra consist of following members.
+Ceiling Section 80 x 26 x 51 x 3660 mm (the main supporting section holding the board).
+Perimeter Section 20 x 28 x 30 x 3660 mm (for supports around wall, partitions etc).
+Intermediate Channel 15 x 45 x 15 x 3660 mm (Primary section to support the ceiling section).
+Ceiling section 80 x 26 x 51 x 3660 ( suspensions from the structural slab/members)
+Jointing compound : Easifill 90
+All hardware like dry wall screws, soffit clip, conneting clip, stainless steel 8mm rawl plug paper jointing adhesive tapes shall be of proprirtary make Gyproc.
+To includes suspended ceiling at all levels, edge moulding & cove to shape, grooves cut-outs for light fixtures, spot lights, smoke detectors, Pelmets, Vertical risers, & and all services cut outs.
+Including provision to accommodate all M.E.P. services like electrical, networking etc. The concealed boxes shall be installed on 25 mm x 25 mm x 1.5 mm thick extruded aluminium "L" angle screwed onto partition framework at required heights/levels as directed.
+Including scaffolding as required, cleaning etc. complete as directed by Project manager / Architect.
+Mode of measurement : Finished plan ceiling area shall be measured for payment. Any vertical height up to 450mm to be included with the scope which wont be calculated separately.
+Board : Gypboard 12.5mm tapered edge 1829 X 1219MM.`,
+    unit: 'SQMTR',
+    unit_price: 1700,
+    category: 'Ceiling',
+  },
+  {
+    name: 'Modular Ceiling - Soft Fibre Acoustical',
+    description: `Providing and Fixing Soft Fibre Acoustical Suspended Ceiling System with Optra (Bevelled Tegular) Edge Tiles of size 15mm Exposed Grid backed with 1000 GSM FR Grade Synthetic wool 50 mm thick. The tiles should have Humidity Resistance (RH) of 95%, NRC 0.9-1.0, Light Reflectance 785%, Colour White, Fire Performance UK Class 0/ Class 1 (BS 476 pt-6&7) in module size of 600 x 600 x 15mm, suitable for Green Building application, with Recycled content of 66% GW and 74% RW. The tile shall be laid on precasted G.I channel 32 with 15 mm wide T-section flanges colour white having rotary stitching on all T sections i.e. the Main Runner, 1200 mm and 600 mm Primary section to support the tile with a web height of 32 mm and a load carrying capacity of ? kilograms/M2 with minimum pull out strength of 100 Kilograms. The T Sections have a Galvanizing of 90 grams per M2 and need to be installed with Suspension system The Tile shall have Grid system Carry manufacturer provided a 10 year warranty. The T-Grid system should be of Silhouette type with Black groove. product approved as per GRIHA and BS 476 etc. complete(Part auditorium of ceiling)`,
+    unit: 'SQMTR',
+    unit_price: 2180,
+    category: 'Ceiling',
+  },
+  {
+    name: 'Acoustical Panelling - Broadband Absorbing',
+    description: `Providing and fixing broadband absorbing panels, 1050mm x 650mm x 50mm, to be hanged using powder coated 2mm (or more) thick MS Z-clips on wall to maintain 100mm air gap behind the panel. Panel framing to be done in boiling water proof or equivalent plywood of 25mm thickness. Aluminium or GI "L" joints should be used to reinforce the frame at the corners. Panel core should be Rockwool of 48kg/m3 density and 50mm thickness, fabric should be covered from all the side, and stapled on the framing at the backside of the panel. The panels should achieve NRC greater than 0.85. (Average value of Absorption Co-efficient readings taken at 250 Hz, 500 Hz, 1000 Hz and 2000 Hz) as per ASTM C423.`,
+    unit: 'SQMTR',
+    unit_price: 5124,
+    category: 'Acoustics',
+  },
+  {
+    name: 'PET/Non-woven Acoustical Board Paneling',
+    description: `Providing and installation of PET/Non-woven acoustical board paneling consisting 10mm/12mm thick approved make acoustical panels fixed on to 12mm thick ply backing as directed (Way floor/ Indosonic or equivalent make)
+Framework consisting of aluminum section of make: Jindal, 50.00 mm x 50.00mm X 2.00mm thk. 1.037 kg/mt.
+Framework spacing not exceeding 600mm x 600mm c/c both ways horizontally and vertically. Framework to be secured to floor, and nearest structural member using cleats, galvanized metal screws and wooden dowels etc.
+Grooves & moldings to shape, finished with P.U., color & shade as directed by the Architect's.
+Including provisions to accommodate trap doors and openings. The edges shall be lipped with 12 mm thk. & 25 mm thk. Maple wood beading, molding as per drawings, formed to shape, Finish: stainer with P.U. polish of approved shade.
+Including provision to accommodate all M.E.P. services like electrical, networking etc. The concealed boxes shall be installed on 25 mm x 25 mm x 1.5 mm thick extruded aluminum "L" angle screwed onto partition framework at required heights/levels as directed.`,
+    unit: 'SQMTR',
+    unit_price: 5138,
+    category: 'Acoustics',
+  },
+];
+
+export function BulkItemImporter() {
+  const [isImporting, setIsImporting] = useState(false);
+  const [results, setResults] = useState<{ success: string[]; failed: string[] } | null>(null);
+  const queryClient = useQueryClient();
+
+  const handleBulkImport = async () => {
+    setIsImporting(true);
+    setResults(null);
+
+    const success: string[] = [];
+    const failed: string[] = [];
+
+    for (const item of itemsToImport) {
+      try {
+        await itemsApi.create(item);
+        success.push(item.name);
+      } catch (error: any) {
+        console.error(`Failed to add ${item.name}:`, error);
+        failed.push(item.name);
+      }
+    }
+
+    setResults({ success, failed });
+    setIsImporting(false);
+
+    if (success.length > 0) {
+      queryClient.invalidateQueries({ queryKey: ['items'] });
+      toast.success(`Successfully imported ${success.length} item(s)`);
+    }
+
+    if (failed.length > 0) {
+      toast.error(`Failed to import ${failed.length} item(s)`);
+    }
+  };
+
+  return (
+    <Card className="mb-6 border-blue-200 bg-blue-50">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Upload className="h-5 w-5" />
+          Bulk Import Items
+        </CardTitle>
+        <CardDescription>
+          Import 6 pre-configured items from your specification document
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <div className="text-sm text-muted-foreground">
+            <p className="font-semibold mb-2">Items to be imported:</p>
+            <ul className="list-disc list-inside space-y-1">
+              {itemsToImport.map((item, idx) => (
+                <li key={idx}>
+                  {item.name} - ₹{item.unit_price.toLocaleString('en-IN')}/{item.unit}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <Button
+            onClick={handleBulkImport}
+            disabled={isImporting}
+            className="w-full"
+          >
+            {isImporting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Importing...
+              </>
+            ) : (
+              <>
+                <Upload className="mr-2 h-4 w-4" />
+                Import All Items
+              </>
+            )}
+          </Button>
+
+          {results && (
+            <div className="space-y-2 text-sm">
+              {results.success.length > 0 && (
+                <div className="p-3 bg-green-50 border border-green-200 rounded">
+                  <p className="font-semibold text-green-800 mb-1">
+                    ✓ Successfully imported ({results.success.length}):
+                  </p>
+                  <ul className="list-disc list-inside text-green-700">
+                    {results.success.map((name, idx) => (
+                      <li key={idx}>{name}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {results.failed.length > 0 && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded">
+                  <p className="font-semibold text-red-800 mb-1">
+                    ✗ Failed to import ({results.failed.length}):
+                  </p>
+                  <ul className="list-disc list-inside text-red-700">
+                    {results.failed.map((name, idx) => (
+                      <li key={idx}>{name}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
