@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { FileText, Users, Package, Plus, TrendingUp, TrendingDown, DollarSign, CheckCircle, Clock, XCircle, BarChart3 } from 'lucide-react';
+import { FileText, Users, Package, Plus, TrendingUp, TrendingDown, IndianRupee, CheckCircle, Clock, XCircle, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -219,7 +219,7 @@ const Dashboard = () => {
               Total Revenue
             </CardTitle>
             <div className="p-3 rounded-xl bg-gradient-to-br from-green-500/20 to-green-600/10 group-hover:from-green-500/30 group-hover:to-green-600/20 transition-all duration-300 shadow-md">
-              <DollarSign className="h-5 w-5 text-green-600 group-hover:scale-110 transition-transform" />
+              <IndianRupee className="h-5 w-5 text-green-600 group-hover:scale-110 transition-transform" />
             </div>
           </CardHeader>
           <CardContent className="pt-4">
