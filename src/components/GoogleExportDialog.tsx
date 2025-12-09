@@ -12,8 +12,7 @@ import { FileSpreadsheet, HardDrive, Loader2 } from 'lucide-react';
 import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+import { generateQuotationPdf } from '@/lib/generateQuotationPdf';
 
 interface GoogleExportDialogProps {
   quotations: any[];
@@ -36,7 +35,7 @@ export const GoogleExportDialog = ({ quotations, trigger, mode = 'bulk' }: Googl
         body: {
           accessToken,
           quotations,
-          spreadsheetTitle: mode === 'single' 
+          spreadsheetTitle: mode === 'single'
             ? `Quotation ${quotations[0].quotation_number}`
             : `Quotations Export ${new Date().toLocaleDateString('en-IN')}`,
         },
@@ -66,31 +65,8 @@ export const GoogleExportDialog = ({ quotations, trigger, mode = 'bulk' }: Googl
     setExportingDrive(true);
     try {
       for (const quotation of quotations) {
-        // Generate PDF for each quotation
-        const element = document.getElementById(`quotation-${quotation.id}`);
-        if (!element) {
-          // If element not in DOM, we need to create a temporary render
-          toast.error('Please open the quotation to export it to Drive');
-          continue;
-        }
-
-        const canvas = await html2canvas(element, {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-        });
-
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF({
-          orientation: 'portrait',
-          unit: 'mm',
-          format: 'a4',
-        });
-
-        const imgWidth = 210;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-
+        // Generate PDF using the shared utility
+        const pdf = generateQuotationPdf(quotation);
         const pdfData = pdf.output('dataurlstring');
 
         const { data, error } = await supabase.functions.invoke('export-to-drive', {
@@ -135,13 +111,13 @@ export const GoogleExportDialog = ({ quotations, trigger, mode = 'bulk' }: Googl
         <DialogHeader>
           <DialogTitle>Export to Google</DialogTitle>
           <DialogDescription>
-            {mode === 'single' 
+            {mode === 'single'
               ? 'Export this quotation to Google Sheets or Drive'
               : `Export ${quotations.length} quotation${quotations.length > 1 ? 's' : ''} to Google`
             }
           </DialogDescription>
         </DialogHeader>
-        
+
         <div className="space-y-4">
           {!isAuthenticated ? (
             <Button onClick={signIn} className="w-full">
@@ -163,7 +139,7 @@ export const GoogleExportDialog = ({ quotations, trigger, mode = 'bulk' }: Googl
                   )}
                   Export to Google Sheets
                 </Button>
-                
+
                 <Button
                   onClick={exportToDrive}
                   disabled={exportingDrive}
@@ -178,7 +154,7 @@ export const GoogleExportDialog = ({ quotations, trigger, mode = 'bulk' }: Googl
                   Export PDF to Google Drive
                 </Button>
               </div>
-              
+
               <Button onClick={signOut} variant="ghost" size="sm" className="w-full">
                 Disconnect from Google
               </Button>
