@@ -26,6 +26,9 @@ const CreateQuotation = () => {
   const [validUntil, setValidUntil] = useState('');
   const [notes, setNotes] = useState('');
   const [status, setStatus] = useState('draft');
+  const [paymentStatus, setPaymentStatus] = useState('unpaid');
+  const [amountPaid, setAmountPaid] = useState('0');
+  const [paymentDate, setPaymentDate] = useState('');
   const [lineItems, setLineItems] = useState<QuotationLineItem[]>([
     { item_id: '', quantity: 1, unit_price: 0, total: 0 }
   ]);
@@ -70,6 +73,9 @@ const CreateQuotation = () => {
       setValidUntil(quotation.valid_until ? new Date(quotation.valid_until).toISOString().split('T')[0] : '');
       setNotes(quotation.notes || '');
       setStatus(quotation.status);
+      setPaymentStatus(quotation.payment_status || 'unpaid');
+      setAmountPaid(quotation.amount_paid?.toString() || '0');
+      setPaymentDate(quotation.payment_date ? new Date(quotation.payment_date).toISOString().split('T')[0] : '');
 
       // Enrich line items with name and description if missing
       const enrichedLineItems = (quotation.line_items as unknown as QuotationLineItem[]).map(lineItem => {
@@ -257,6 +263,9 @@ const CreateQuotation = () => {
       valid_until: validUntil || null,
       notes,
       status,
+      payment_status: paymentStatus,
+      amount_paid: parseFloat(amountPaid) || 0,
+      payment_date: paymentDate || null,
     };
 
     if (isEditMode) {
@@ -330,6 +339,47 @@ const CreateQuotation = () => {
                     <SelectItem value="rejected">Rejected</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="payment_status">Payment Status</Label>
+                <Select value={paymentStatus} onValueChange={setPaymentStatus}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="unpaid">Unpaid</SelectItem>
+                    <SelectItem value="partially_paid">Partially Paid</SelectItem>
+                    <SelectItem value="paid">Paid</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="amount_paid">Amount Paid</Label>
+                <Input
+                  id="amount_paid"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={amountPaid}
+                  onChange={(e) => setAmountPaid(e.target.value)}
+                  placeholder="0.00"
+                  disabled={paymentStatus === 'unpaid'}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="payment_date">Payment Date</Label>
+                <Input
+                  id="payment_date"
+                  type="date"
+                  value={paymentDate}
+                  onChange={(e) => setPaymentDate(e.target.value)}
+                  disabled={paymentStatus === 'unpaid'}
+                />
               </div>
             </div>
 

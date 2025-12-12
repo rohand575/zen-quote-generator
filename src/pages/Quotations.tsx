@@ -20,6 +20,7 @@ import { GoogleExportDialog } from '@/components/GoogleExportDialog';
 const Quotations = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState<string>('all');
   const [clientFilter, setClientFilter] = useState<string>('all');
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
@@ -66,6 +67,9 @@ const Quotations = () => {
     // Status filter
     const matchesStatus = statusFilter === 'all' || quote.status === statusFilter;
 
+    // Payment status filter
+    const matchesPaymentStatus = paymentStatusFilter === 'all' || quote.payment_status === paymentStatusFilter;
+
     // Client filter
     const matchesClient = clientFilter === 'all' || quote.client_id === clientFilter;
 
@@ -74,7 +78,7 @@ const Quotations = () => {
     const matchesDateFrom = !dateFrom || quoteDate >= dateFrom;
     const matchesDateTo = !dateTo || quoteDate <= dateTo;
 
-    return matchesSearch && matchesStatus && matchesClient && matchesDateFrom && matchesDateTo;
+    return matchesSearch && matchesStatus && matchesPaymentStatus && matchesClient && matchesDateFrom && matchesDateTo;
   });
 
   // Pagination calculations
@@ -106,6 +110,7 @@ const Quotations = () => {
 
   const clearFilters = () => {
     setStatusFilter('all');
+    setPaymentStatusFilter('all');
     setClientFilter('all');
     setDateFrom(undefined);
     setDateTo(undefined);
@@ -113,7 +118,7 @@ const Quotations = () => {
     setCurrentPage(1);
   };
 
-  const hasActiveFilters = statusFilter !== 'all' || clientFilter !== 'all' || dateFrom || dateTo || searchTerm;
+  const hasActiveFilters = statusFilter !== 'all' || paymentStatusFilter !== 'all' || clientFilter !== 'all' || dateFrom || dateTo || searchTerm;
 
   const handleDelete = (id: string) => {
     if (confirm('Are you sure you want to delete this quotation?')) {
@@ -128,10 +133,27 @@ const Quotations = () => {
       accepted: { variant: "default", className: "bg-green-600" },
       rejected: { variant: "destructive", className: "" },
     };
-    
+
     return (
       <Badge variant={variants[status]?.variant || "default"} className={variants[status]?.className}>
         {status.charAt(0).toUpperCase() + status.slice(1)}
+      </Badge>
+    );
+  };
+
+  const getPaymentStatusBadge = (paymentStatus: string | undefined) => {
+    const status = paymentStatus || 'unpaid';
+    const variants: Record<string, { variant: "default" | "secondary" | "destructive" | "outline", className: string }> = {
+      unpaid: { variant: "secondary", className: "bg-orange-500/20 text-orange-700 dark:text-orange-400" },
+      partially_paid: { variant: "default", className: "bg-yellow-500/20 text-yellow-700 dark:text-yellow-400" },
+      paid: { variant: "default", className: "bg-green-500/20 text-green-700 dark:text-green-400" },
+    };
+
+    const label = status === 'partially_paid' ? 'Partially Paid' : status.charAt(0).toUpperCase() + status.slice(1);
+
+    return (
+      <Badge variant={variants[status]?.variant || "default"} className={variants[status]?.className}>
+        {label}
       </Badge>
     );
   };
@@ -239,6 +261,22 @@ const Quotations = () => {
               </SelectContent>
             </Select>
 
+            {/* Payment Status Filter */}
+            <Select value={paymentStatusFilter} onValueChange={(value) => {
+              setPaymentStatusFilter(value);
+              setCurrentPage(1);
+            }}>
+              <SelectTrigger className="w-[160px] bg-background">
+                <SelectValue placeholder="Payment Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Payments</SelectItem>
+                <SelectItem value="unpaid">Unpaid</SelectItem>
+                <SelectItem value="partially_paid">Partially Paid</SelectItem>
+                <SelectItem value="paid">Paid</SelectItem>
+              </SelectContent>
+            </Select>
+
             {/* Client Filter */}
             <Select value={clientFilter} onValueChange={(value) => {
               setClientFilter(value);
@@ -334,6 +372,11 @@ const Quotations = () => {
                   Status: {statusFilter}
                 </Badge>
               )}
+              {paymentStatusFilter !== 'all' && (
+                <Badge variant="secondary" className="text-xs">
+                  Payment: {paymentStatusFilter === 'partially_paid' ? 'Partially Paid' : paymentStatusFilter}
+                </Badge>
+              )}
               {clientFilter !== 'all' && (
                 <Badge variant="secondary" className="text-xs">
                   Client: {clients.find(c => c.id === clientFilter)?.name}
@@ -383,6 +426,7 @@ const Quotations = () => {
                   <th className="text-left py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Project</th>
                   <th className="text-left py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Date</th>
                   <th className="text-left py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Status</th>
+                  <th className="text-left py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Payment</th>
                   <th className="text-right py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Total</th>
                   <th className="text-right py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Margin %</th>
                   <th className="text-right py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Actions</th>
@@ -410,6 +454,7 @@ const Quotations = () => {
                         {new Date(quote.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </td>
                       <td className="py-4 px-6">{getStatusBadge(quote.status)}</td>
+                      <td className="py-4 px-6">{getPaymentStatusBadge(quote.payment_status)}</td>
                       <td className="py-4 px-6 text-right font-mono font-medium">{formatCurrency(quote.total)}</td>
                       <td className="py-4 px-6 text-right font-mono text-sm">
                         {margin !== null ? (

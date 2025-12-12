@@ -60,6 +60,9 @@ export interface Quotation {
   tax_amount: number;
   total: number;
   status: string;
+  payment_status?: string;
+  amount_paid?: number;
+  payment_date?: string;
   valid_until?: string;
   notes?: string;
   created_at: string;
