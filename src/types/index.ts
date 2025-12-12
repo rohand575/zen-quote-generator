@@ -7,6 +7,8 @@ export interface LineItem {
   unitPrice: number;
   amount: number;
   itemId?: string;
+  costPrice?: number;
+  margin?: number;
 }
 
 export interface QuotationLineItem {
@@ -15,8 +17,11 @@ export interface QuotationLineItem {
   description?: string;
   notes?: string;
   quantity: number;
+  unit?: string;
   unit_price: number;
   total: number;
+  cost_price?: number;
+  margin?: number;
 }
 
 export interface Client {
@@ -38,6 +43,7 @@ export interface Item {
   description?: string;
   unit: string;
   unit_price: number;
+  cost_price?: number;
   category?: string;
   created_at: string;
 }
@@ -69,13 +75,4 @@ export interface Template {
   tax_rate: number;
   created_at: string;
   updated_at: string;
-}
-
-export interface QuotationVersion {
-  id: string;
-  quotation_id: string;
-  version_number: number;
-  quotation_data: any;
-  notes?: string;
-  created_at: string;
 }

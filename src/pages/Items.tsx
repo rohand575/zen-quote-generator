@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Search, Edit, Trash2, Check, ChevronsUpDown } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Check, ChevronsUpDown, Filter, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,6 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { itemsApi } from '@/lib/api';
 import { cn } from '@/lib/utils';
@@ -20,6 +22,7 @@ const Items = () => {
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [categorySearch, setCategorySearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
   const queryClient = useQueryClient();
   
   const { data: items = [], isLoading } = useQuery({
@@ -76,10 +79,14 @@ const Items = () => {
   // Combine default categories with existing ones
   const allCategories = Array.from(new Set([...defaultCategories, ...existingCategories]));
 
-  const filteredItems = items.filter((item: any) =>
-    item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (item.category && item.category.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredItems = items.filter((item: any) => {
+    const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.category && item.category.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    const matchesCategory = categoryFilter === 'all' || item.category === categoryFilter;
+
+    return matchesSearch && matchesCategory;
+  });
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -89,6 +96,7 @@ const Items = () => {
       description: formData.get('description') as string,
       unit: formData.get('unit') as string,
       unit_price: parseFloat(formData.get('unit_price') as string),
+      cost_price: parseFloat(formData.get('cost_price') as string) || 0,
       category: selectedCategory || categorySearch, // Use selected category or typed value
     };
 
@@ -130,6 +138,19 @@ const Items = () => {
     }).format(amount);
   };
 
+  const calculateMargin = (unitPrice: number, costPrice: number) => {
+    if (!costPrice || costPrice === 0) return null;
+    const margin = ((unitPrice - costPrice) / unitPrice) * 100;
+    return margin;
+  };
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setCategoryFilter('all');
+  };
+
+  const hasActiveFilters = searchTerm !== '' || categoryFilter !== 'all';
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -169,10 +190,14 @@ const Items = () => {
                   <Label htmlFor="description">Description</Label>
                   <Textarea id="description" name="description" placeholder="Heavy-duty 3-phase motor with overload protection" rows={3} defaultValue={editingItem?.description} />
                 </div>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-4 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="unit">Unit *</Label>
                     <Input id="unit" name="unit" placeholder="ea" defaultValue={editingItem?.unit || 'ea'} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cost_price">Cost Price</Label>
+                    <Input id="cost_price" name="cost_price" type="number" step="0.01" placeholder="20000" defaultValue={editingItem?.cost_price || 0} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="unit_price">Unit Price *</Label>
@@ -268,6 +293,63 @@ const Items = () => {
         />
       </div>
 
+      {/* Filters Card */}
+      <Card className="premium-card glass-card">
+        <CardContent className="py-4">
+          <div className="flex flex-wrap gap-3 items-center">
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-muted-foreground">Filters:</span>
+            </div>
+
+            {/* Category Filter */}
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <SelectTrigger className="w-[180px] bg-background">
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {allCategories.map(category => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Clear Filters */}
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearFilters}
+                className="gap-2 text-muted-foreground hover:text-foreground hover:bg-accent/10"
+              >
+                <X className="h-4 w-4" />
+                Clear All
+              </Button>
+            )}
+          </div>
+
+          {/* Active Filters Summary */}
+          {hasActiveFilters && (
+            <div className="flex flex-wrap gap-2 pt-3 mt-3 border-t soft-divider">
+              <span className="text-xs text-muted-foreground">Active filters:</span>
+              {categoryFilter !== 'all' && (
+                <Badge variant="secondary" className="text-xs">
+                  Category: {categoryFilter}
+                </Badge>
+              )}
+              {searchTerm && (
+                <Badge variant="secondary" className="text-xs">
+                  Search: "{searchTerm}"
+                </Badge>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       <Card className="premium-card glass-card accent-glow animate-slide-up">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
@@ -278,30 +360,45 @@ const Items = () => {
                   <th className="text-left py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Description</th>
                   <th className="text-left py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Category</th>
                   <th className="text-left py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Unit</th>
+                  <th className="text-right py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Cost Price</th>
                   <th className="text-right py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Unit Price</th>
+                  <th className="text-right py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Margin %</th>
                   <th className="text-right py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredItems.map((item: any, index: number) => (
-                  <tr key={item.id} className={`border-b soft-divider hover:bg-[hsl(var(--card))/0.6] transition-colors ${index % 2 === 0 ? 'bg-background/60' : 'bg-muted/30'}`}>
-                    <td className="py-4 px-6 font-medium">{item.name}</td>
-                    <td className="py-4 px-6 text-sm text-muted-foreground max-w-xs truncate">{item.description}</td>
-                    <td className="py-4 px-6 text-sm">{item.category}</td>
-                    <td className="py-4 px-6 text-sm font-mono">{item.unit}</td>
-                    <td className="py-4 px-6 text-right font-mono font-medium">{formatCurrency(item.unit_price)}</td>
-                    <td className="py-4 px-6 text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(item)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDelete(item.id)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {filteredItems.map((item: any, index: number) => {
+                  const margin = calculateMargin(item.unit_price, item.cost_price || 0);
+                  return (
+                    <tr key={item.id} className={`border-b soft-divider hover:bg-[hsl(var(--card))/0.6] transition-colors ${index % 2 === 0 ? 'bg-background/60' : 'bg-muted/30'}`}>
+                      <td className="py-4 px-6 font-medium">{item.name}</td>
+                      <td className="py-4 px-6 text-sm text-muted-foreground max-w-xs truncate">{item.description}</td>
+                      <td className="py-4 px-6 text-sm">{item.category}</td>
+                      <td className="py-4 px-6 text-sm font-mono">{item.unit}</td>
+                      <td className="py-4 px-6 text-right font-mono font-medium text-muted-foreground">{item.cost_price ? formatCurrency(item.cost_price) : '-'}</td>
+                      <td className="py-4 px-6 text-right font-mono font-medium">{formatCurrency(item.unit_price)}</td>
+                      <td className="py-4 px-6 text-right font-mono font-medium">
+                        {margin !== null ? (
+                          <span className={margin > 30 ? 'text-green-600' : margin > 15 ? 'text-yellow-600' : 'text-orange-600'}>
+                            {margin.toFixed(1)}%
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <div className="flex justify-end gap-1">
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(item)}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => handleDelete(item.id)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

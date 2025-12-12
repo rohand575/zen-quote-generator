@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Search, Eye, Edit, Trash2, Filter, X, History } from 'lucide-react';
+import { Plus, Search, Eye, Edit, Trash2, Filter, X } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,8 +16,6 @@ import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { GoogleExportDialog } from '@/components/GoogleExportDialog';
-import { QuotationVersionHistory } from '@/components/QuotationVersionHistory';
-import { QuotationVersionCompare } from '@/components/QuotationVersionCompare';
 
 const Quotations = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -146,6 +144,23 @@ const Quotations = () => {
     }).format(amount);
   };
 
+  const calculateQuotationMargin = (quotation: any) => {
+    const lineItems = quotation.line_items || [];
+
+    const totalCost = lineItems.reduce((sum: number, item: any) => {
+      const costPrice = item.cost_price || 0;
+      const quantity = item.quantity || 0;
+      return sum + (costPrice * quantity);
+    }, 0);
+
+    if (totalCost === 0) return null;
+
+    const subtotal = quotation.subtotal || 0;
+    const margin = ((subtotal - totalCost) / subtotal) * 100;
+
+    return margin;
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -169,7 +184,7 @@ const Quotations = () => {
               mode="bulk"
               trigger={
                 <Button variant="outline" size="sm">
-                  Export Selected ({selectedQuotations.length})
+                  Export to Google ({selectedQuotations.length})
                 </Button>
               }
             />
@@ -369,62 +384,67 @@ const Quotations = () => {
                   <th className="text-left py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Date</th>
                   <th className="text-left py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Status</th>
                   <th className="text-right py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Total</th>
+                  <th className="text-right py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Margin %</th>
                   <th className="text-right py-4 px-6 text-xs font-semibold text-muted-foreground uppercase tracking-wide">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {paginatedQuotations.map((quote, index) => (
-                  <tr key={quote.id} className={`border-b soft-divider hover:bg-[hsl(var(--card))/0.6] transition-colors ${index % 2 === 0 ? 'bg-background/60' : 'bg-muted/30'}`}>
-                    <td className="px-6">
-                      <Checkbox
-                        checked={selectedQuotations.includes(quote.id)}
-                        onCheckedChange={() => toggleSelectQuotation(quote.id)}
-                      />
-                    </td>
-                    <td className="py-4 px-6">
-                      <Link to={`/quotations/${quote.id}/print`} className="text-primary hover:underline font-mono text-sm font-medium">
-                        {quote.quotation_number}
-                      </Link>
-                    </td>
-                    <td className="py-4 px-6 font-medium">{quote.client?.name}</td>
-                    <td className="py-4 px-6 text-sm text-muted-foreground">{quote.project_title}</td>
-                    <td className="py-4 px-6 text-sm text-muted-foreground">
-                      {new Date(quote.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
-                    </td>
-                    <td className="py-4 px-6">{getStatusBadge(quote.status)}</td>
-                    <td className="py-4 px-6 text-right font-mono font-medium">{formatCurrency(quote.total)}</td>
-                    <td className="py-4 px-6 text-right">
-                      <div className="flex justify-end gap-1">
-                        <QuotationVersionCompare
-                          quotationId={quote.id}
-                          quotationNumber={quote.quotation_number}
+                {paginatedQuotations.map((quote, index) => {
+                  const margin = calculateQuotationMargin(quote);
+                  return (
+                    <tr key={quote.id} className={`border-b soft-divider hover:bg-[hsl(var(--card))/0.6] transition-colors ${index % 2 === 0 ? 'bg-background/60' : 'bg-muted/30'}`}>
+                      <td className="px-6">
+                        <Checkbox
+                          checked={selectedQuotations.includes(quote.id)}
+                          onCheckedChange={() => toggleSelectQuotation(quote.id)}
                         />
-                        <QuotationVersionHistory 
-                          quotationId={quote.id}
-                          quotationNumber={quote.quotation_number}
-                        />
-                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent/10" asChild>
-                          <Link to={`/quotations/${quote.id}/print`}>
-                            <Eye className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent/10" asChild>
-                          <Link to={`/quotations/${quote.id}/edit`}>
-                            <Edit className="h-4 w-4" />
-                          </Link>
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                          onClick={() => handleDelete(quote.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="py-4 px-6">
+                        <Link to={`/quotations/${quote.id}/print`} className="text-primary hover:underline font-mono text-sm font-medium">
+                          {quote.quotation_number}
+                        </Link>
+                      </td>
+                      <td className="py-4 px-6 font-medium">{quote.client?.name}</td>
+                      <td className="py-4 px-6 text-sm text-muted-foreground">{quote.project_title}</td>
+                      <td className="py-4 px-6 text-sm text-muted-foreground">
+                        {new Date(quote.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </td>
+                      <td className="py-4 px-6">{getStatusBadge(quote.status)}</td>
+                      <td className="py-4 px-6 text-right font-mono font-medium">{formatCurrency(quote.total)}</td>
+                      <td className="py-4 px-6 text-right font-mono text-sm">
+                        {margin !== null ? (
+                          <span className={margin > 30 ? 'text-green-600' : margin > 15 ? 'text-yellow-600' : 'text-orange-600'}>
+                            {margin.toFixed(1)}%
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        <div className="flex justify-end gap-1">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent/10" asChild>
+                            <Link to={`/quotations/${quote.id}/print`}>
+                              <Eye className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-accent/10" asChild>
+                            <Link to={`/quotations/${quote.id}/edit`}>
+                              <Edit className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => handleDelete(quote.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

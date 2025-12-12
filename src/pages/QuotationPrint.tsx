@@ -1,13 +1,13 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Download, Loader2 } from 'lucide-react';
+import { ArrowLeft, Download, Loader2, MessageCircle } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { quotationsApi, itemsApi } from '@/lib/api';
 import { QuotationLineItem } from '@/types';
 import { GoogleExportDialog } from '@/components/GoogleExportDialog';
-import { QuotationVersionHistory } from '@/components/QuotationVersionHistory';
 import { generateQuotationPdf, COMPANY, TERMS, formatCurrency, formatCurrencyShort, formatDate } from '@/lib/generateQuotationPdf';
+import { toast } from '@/hooks/use-toast';
 
 const QuotationPrint = () => {
   const { id } = useParams();
@@ -24,22 +24,20 @@ const QuotationPrint = () => {
     queryFn: itemsApi.getAll,
   });
 
-  // Enrich line items with item names from the items list
+  // Enrich line items with item names and units from the items list
   const enrichedLineItems = useMemo(() => {
     if (!quotation) return [];
     const lineItems = (quotation.line_items as unknown as QuotationLineItem[]) || [];
     return lineItems.map(lineItem => {
-      // If name is already present, use it
-      if (lineItem.name) return lineItem;
-
-      // Otherwise, look up the item by item_id
-      if (lineItem.item_id) {
+      // If unit is not present, look up the item by item_id
+      if (!lineItem.unit && lineItem.item_id) {
         const item = items.find(i => i.id === lineItem.item_id);
         if (item) {
           return {
             ...lineItem,
-            name: item.name,
+            name: lineItem.name || item.name,
             description: lineItem.description || item.description,
+            unit: item.unit,
           };
         }
       }
@@ -56,6 +54,71 @@ const QuotationPrint = () => {
       pdf.save(`${quotation.quotation_number || 'quotation'}.pdf`);
     } catch (error) {
       console.error('Failed to generate PDF', error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleWhatsAppShare = async () => {
+    if (!quotation) return;
+    setIsGenerating(true);
+
+    try {
+      // Generate the PDF
+      const pdf = await generateQuotationPdf(quotation);
+      const pdfBlob = pdf.output('blob');
+      const fileName = `${quotation.quotation_number || 'quotation'}.pdf`;
+
+      const phoneNumber = '917709022575';
+      const message = `Hi, I'm sharing quotation ${quotation.quotation_number} for ${quotation.project_title || 'your project'}.\n\nClient: ${quotation.client?.name || 'N/A'}\nTotal Amount: ${formatCurrency(quotation.total)}`;
+
+      // Check if Web Share API is supported and can share files
+      if (navigator.share && navigator.canShare) {
+        const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+        const shareData = {
+          files: [file],
+          title: `Quotation ${quotation.quotation_number}`,
+          text: message,
+        };
+
+        // Check if the browser can share this data
+        if (navigator.canShare(shareData)) {
+          try {
+            await navigator.share(shareData);
+            toast({
+              title: 'Shared Successfully',
+              description: 'Quotation PDF shared via WhatsApp',
+            });
+            return;
+          } catch (err: any) {
+            // User cancelled or share failed
+            if (err.name !== 'AbortError') {
+              console.error('Share failed:', err);
+            }
+          }
+        }
+      }
+
+      // Fallback: Download PDF and open WhatsApp with message
+      pdf.save(fileName);
+
+      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message + '\n\n(PDF downloaded - please attach manually)')}`;
+
+      setTimeout(() => {
+        window.open(whatsappUrl, '_blank');
+      }, 500);
+
+      toast({
+        title: 'PDF Downloaded',
+        description: 'Opening WhatsApp - please attach the downloaded PDF manually',
+      });
+    } catch (error) {
+      console.error('Failed to share:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to generate PDF for sharing',
+      });
     } finally {
       setIsGenerating(false);
     }
@@ -94,11 +157,16 @@ const QuotationPrint = () => {
           </div>
         </div>
         <div className="flex gap-2">
-          <QuotationVersionHistory
-            quotationId={quotation.id}
-            quotationNumber={quotation.quotation_number}
-          />
           <GoogleExportDialog quotations={[quotation]} mode="single" />
+          <Button
+            onClick={handleWhatsAppShare}
+            variant="outline"
+            className="gap-2 bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+            disabled={isGenerating}
+          >
+            {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageCircle className="h-4 w-4" />}
+            {isGenerating ? 'Preparing...' : 'Share to WhatsApp'}
+          </Button>
           <Button onClick={handleDownload} className="gap-2" disabled={isGenerating}>
             {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
             {isGenerating ? 'Preparing PDF...' : 'Download PDF'}
@@ -169,7 +237,7 @@ const QuotationPrint = () => {
                     <p className="font-medium">{item.name || item.description || `Item ${index + 1}`}</p>
                     {item.notes && <p className="text-xs text-slate-500 mt-1">{item.notes}</p>}
                   </td>
-                  <td className="border px-2 py-2 text-center">Nos</td>
+                  <td className="border px-2 py-2 text-center">{item.unit || 'Nos'}</td>
                   <td className="border px-2 py-2 text-center">{item.quantity}</td>
                   <td className="border px-2 py-2 text-right">{formatCurrencyShort(item.unit_price)}</td>
                   <td className="border px-2 py-2 text-center">{quotation.tax_rate}%</td>

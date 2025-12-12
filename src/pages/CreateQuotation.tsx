@@ -12,7 +12,6 @@ import { quotationsApi, clientsApi, itemsApi, templatesApi } from '@/lib/api';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { QuotationLineItem } from '@/types';
 import { toast } from '@/hooks/use-toast';
-import { QuotationVersionHistory } from '@/components/QuotationVersionHistory';
 
 const CreateQuotation = () => {
   const navigate = useNavigate();
@@ -138,11 +137,23 @@ const CreateQuotation = () => {
       if (selectedItem) {
         newItems[index].name = selectedItem.name;
         newItems[index].description = selectedItem.description;
+        newItems[index].unit = selectedItem.unit;
         newItems[index].unit_price = Number(selectedItem.unit_price);
+        newItems[index].cost_price = Number(selectedItem.cost_price || 0);
         newItems[index].total = Number(selectedItem.unit_price) * newItems[index].quantity;
+
+        // Calculate margin
+        if (selectedItem.cost_price && selectedItem.cost_price > 0) {
+          newItems[index].margin = ((selectedItem.unit_price - selectedItem.cost_price) / selectedItem.unit_price) * 100;
+        }
       }
     } else if (field === 'quantity' || field === 'unit_price') {
       newItems[index].total = newItems[index].quantity * newItems[index].unit_price;
+
+      // Recalculate margin if cost_price exists
+      if (newItems[index].cost_price && newItems[index].cost_price > 0) {
+        newItems[index].margin = ((newItems[index].unit_price - newItems[index].cost_price) / newItems[index].unit_price) * 100;
+      }
     }
 
     setLineItems(newItems);
@@ -207,7 +218,17 @@ const CreateQuotation = () => {
     const subtotal = lineItems.reduce((sum, item) => sum + item.total, 0);
     const taxAmount = (subtotal * parseFloat(taxRate)) / 100;
     const total = subtotal + taxAmount;
-    return { subtotal, taxAmount, total };
+
+    // Calculate total cost and profit margin
+    const totalCost = lineItems.reduce((sum, item) => {
+      const costPrice = item.cost_price || 0;
+      return sum + (costPrice * item.quantity);
+    }, 0);
+
+    const totalProfit = subtotal - totalCost;
+    const profitMargin = totalCost > 0 ? (totalProfit / subtotal) * 100 : null;
+
+    return { subtotal, taxAmount, total, totalCost, totalProfit, profitMargin };
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -222,7 +243,7 @@ const CreateQuotation = () => {
       return;
     }
 
-    const { subtotal, taxAmount, total } = calculateTotals();
+    const { subtotal, taxAmount, total, totalCost, totalProfit, profitMargin } = calculateTotals();
 
     const quotationData = {
       client_id: clientId,
@@ -245,7 +266,7 @@ const CreateQuotation = () => {
     }
   };
 
-  const { subtotal, taxAmount, total } = calculateTotals();
+  const { subtotal, taxAmount, total, totalCost, totalProfit, profitMargin } = calculateTotals();
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -271,12 +292,6 @@ const CreateQuotation = () => {
             </p>
           </div>
         </div>
-        {isEditMode && quotation && (
-          <QuotationVersionHistory 
-            quotationId={quotation.id}
-            quotationNumber={quotation.quotation_number}
-          />
-        )}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -486,6 +501,19 @@ const CreateQuotation = () => {
                       </div>
                     </div>
 
+                    <div className="w-24 space-y-2">
+                      <Label>Margin</Label>
+                      <div className="h-10 flex items-center font-mono text-sm">
+                        {item.margin ? (
+                          <span className={item.margin > 30 ? 'text-green-600' : item.margin > 15 ? 'text-yellow-600' : 'text-orange-600'}>
+                            {item.margin.toFixed(1)}%
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">-</span>
+                        )}
+                      </div>
+                    </div>
+
                     <Button
                       type="button"
                       variant="ghost"
@@ -502,6 +530,24 @@ const CreateQuotation = () => {
             </div>
 
             <div className="mt-6 space-y-2 border-t pt-4">
+              {totalCost > 0 && (
+                <div className="bg-muted/50 p-3 rounded-lg mb-3 space-y-2 border border-border">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Total Cost:</span>
+                    <span className="font-mono font-medium">{formatCurrency(totalCost)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Profit:</span>
+                    <span className="font-mono font-medium text-green-600">{formatCurrency(totalProfit)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm font-semibold">
+                    <span>Profit Margin:</span>
+                    <span className={`font-mono ${profitMargin && profitMargin > 30 ? 'text-green-600' : profitMargin && profitMargin > 15 ? 'text-yellow-600' : 'text-orange-600'}`}>
+                      {profitMargin?.toFixed(1)}%
+                    </span>
+                  </div>
+                </div>
+              )}
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Subtotal:</span>
                 <span className="font-mono font-medium">{formatCurrency(subtotal)}</span>

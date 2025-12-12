@@ -332,7 +332,7 @@ export const generateQuotationPdf = async (quotation: QuotationData): Promise<js
     colX += colWidths.description;
 
     // Unit
-    pdf.text('Nos', colX + colWidths.unit / 2, y + 5, { align: 'center' });
+    pdf.text(item.unit || 'Nos', colX + colWidths.unit / 2, y + 5, { align: 'center' });
     drawLine(colX + colWidths.unit, y, colX + colWidths.unit, y + itemRowHeight);
     colX += colWidths.unit;
 
