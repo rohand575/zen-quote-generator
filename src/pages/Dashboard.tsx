@@ -10,6 +10,7 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 import { useMemo } from 'react';
 import GoalTracking from '@/components/GoalTracking';
+import ProfitMarginAnalytics from '@/components/ProfitMarginAnalytics';
 
 const Dashboard = () => {
   const { data: quotations = [], isLoading: quotationsLoading } = useQuery({
@@ -459,13 +460,18 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      {/* Goal Tracking Section */}
+      {/* Profit Margin Analytics Section */}
       <div className="animate-slide-up" style={{animationDelay: '0.9s'}}>
+        <ProfitMarginAnalytics />
+      </div>
+
+      {/* Goal Tracking Section */}
+      <div className="animate-slide-up" style={{animationDelay: '1.0s'}}>
         <GoalTracking />
       </div>
 
       {/* Recent Quotations */}
-      <Card className="premium-card glass-card accent-glow luxury-border animate-slide-up" style={{animationDelay: '1.0s'}}>
+      <Card className="premium-card glass-card accent-glow luxury-border animate-slide-up" style={{animationDelay: '1.1s'}}>
         <CardHeader className="border-b soft-divider pb-6">
           <div className="flex items-center justify-between">
             <div>
