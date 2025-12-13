@@ -53,6 +53,45 @@ export type Database = {
         }
         Relationships: []
       }
+      goals: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          goal_type: string
+          id: string
+          is_active: boolean | null
+          period_end: string
+          period_start: string
+          period_type: string
+          target_value: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          goal_type: string
+          id?: string
+          is_active?: boolean | null
+          period_end: string
+          period_start: string
+          period_type: string
+          target_value: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          goal_type?: string
+          id?: string
+          is_active?: boolean | null
+          period_end?: string
+          period_start?: string
+          period_type?: string
+          target_value?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       items: {
         Row: {
           category: string | null
