@@ -79,3 +79,24 @@ export interface Template {
   created_at: string;
   updated_at: string;
 }
+
+export interface Goal {
+  id: string;
+  goal_type: 'revenue' | 'conversion_rate';
+  target_value: number;
+  period_type: 'monthly' | 'quarterly' | 'yearly';
+  period_start: string;
+  period_end: string;
+  description?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GoalProgress {
+  goal: Goal;
+  current_value: number;
+  progress_percentage: number;
+  status: 'on-track' | 'behind' | 'achieved' | 'not-started';
+  days_remaining: number;
+}

@@ -9,6 +9,7 @@ import type { Quotation, Client } from '@/types';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 import { useMemo } from 'react';
+import GoalTracking from '@/components/GoalTracking';
 
 const Dashboard = () => {
   const { data: quotations = [], isLoading: quotationsLoading } = useQuery({
@@ -458,8 +459,13 @@ const Dashboard = () => {
         </Card>
       </div>
 
+      {/* Goal Tracking Section */}
+      <div className="animate-slide-up" style={{animationDelay: '0.9s'}}>
+        <GoalTracking />
+      </div>
+
       {/* Recent Quotations */}
-      <Card className="premium-card glass-card accent-glow luxury-border animate-slide-up" style={{animationDelay: '0.9s'}}>
+      <Card className="premium-card glass-card accent-glow luxury-border animate-slide-up" style={{animationDelay: '1.0s'}}>
         <CardHeader className="border-b soft-divider pb-6">
           <div className="flex items-center justify-between">
             <div>

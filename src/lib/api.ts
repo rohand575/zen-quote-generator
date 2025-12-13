@@ -247,3 +247,70 @@ export const templatesApi = {
     if (error) throw error;
   },
 };
+
+// Goals API
+export const goalsApi = {
+  getAll: async () => {
+    const { data, error } = await supabase
+      .from('goals')
+      .select('*')
+      .order('period_start', { ascending: false });
+
+    if (error) throw error;
+    return data;
+  },
+
+  getActive: async () => {
+    const { data, error } = await supabase
+      .from('goals')
+      .select('*')
+      .eq('is_active', true)
+      .order('period_start', { ascending: false });
+
+    if (error) throw error;
+    return data;
+  },
+
+  getById: async (id: string) => {
+    const { data, error } = await supabase
+      .from('goals')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  create: async (goal: any) => {
+    const { data, error } = await supabase
+      .from('goals')
+      .insert(goal)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  update: async (id: string, goal: any) => {
+    const { data, error } = await supabase
+      .from('goals')
+      .update(goal)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  delete: async (id: string) => {
+    const { error } = await supabase
+      .from('goals')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  },
+};
