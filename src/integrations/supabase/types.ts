@@ -120,11 +120,14 @@ export type Database = {
       }
       quotations: {
         Row: {
+          amount_paid: number | null
           client_id: string
           created_at: string
           id: string
           line_items: Json
           notes: string | null
+          payment_date: string | null
+          payment_status: string
           project_description: string | null
           project_title: string
           quotation_number: string
@@ -137,11 +140,14 @@ export type Database = {
           valid_until: string | null
         }
         Insert: {
+          amount_paid?: number | null
           client_id: string
           created_at?: string
           id?: string
           line_items?: Json
           notes?: string | null
+          payment_date?: string | null
+          payment_status?: string
           project_description?: string | null
           project_title: string
           quotation_number: string
@@ -154,11 +160,14 @@ export type Database = {
           valid_until?: string | null
         }
         Update: {
+          amount_paid?: number | null
           client_id?: string
           created_at?: string
           id?: string
           line_items?: Json
           notes?: string | null
+          payment_date?: string | null
+          payment_status?: string
           project_description?: string | null
           project_title?: string
           quotation_number?: string
